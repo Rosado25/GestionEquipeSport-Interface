@@ -12,7 +12,7 @@
 <body>
 
     <header>
-        <?php include 'navbar.php'; ?>
+        <!-- NavBar -->
     </header>
 
     <main>
@@ -64,7 +64,7 @@
                         <li><strong>Matchs gagnés : </strong><!-- affichage de Matchs gagnés --></li>
                         <li><strong>Buts marqués : </strong><!-- affichage de Buts marqués --></li>
                         <li><strong>Buts subis : </strong><!-- affichage de Buts subis --></li>
-                        <li><strong>Buts par match : </strong><!-- affichage de Buts par match -->></li>
+                        <li><strong>Buts par match : </strong><!-- affichage de Buts par match --></li>
                         <li><strong>Clean Sheets : </strong><!-- affichage de Clean Sheets --></li>
                         <li><strong>Différence de buts : </strong><!-- affichage de Différence de buts --></li>
                         <li><strong>Performance de l'équipe : </strong><!-- affichage de Performance de l'équipe --></li>
@@ -81,7 +81,7 @@
         </div>
     </main>
     <footer>
-        <?php include 'footer.php'; ?>
+        <?php include '../components/footer.php'; ?>
     </footer>
 </body>
 
