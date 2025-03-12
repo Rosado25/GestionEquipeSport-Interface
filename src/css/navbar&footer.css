@@ -1,0 +1,231 @@
+@import url('https://fonts.googleapis.com/css2?family=Abel&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Navbar */
+nav {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    height: 9vh;
+    padding: 10px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    border-radius: 12px;
+}
+
+#ulnav {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+    align-items: center;
+    transition: all 0.3s ease;
+    border-radius: 15px;
+}
+
+nav img {
+    height: 80px;
+    width: auto;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.nav-link {
+    font-size: 19px;
+    font-weight: 600;
+    color: #E0E0E0;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #FFD700;
+    background-color: #333;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.profile-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 2%;
+}
+
+.profile-icon i {
+    font-size: 28px;
+    color: white;
+    cursor: pointer;
+    transition: color 0.3s, transform 0.3s;
+}
+
+/* Burger Menu pour la navbar  */
+.menu-btn {
+    display: none;
+}
+
+.menu-icon {
+    display: none;
+    cursor: pointer;
+}
+
+.menu-icon .navicon {
+    background: #fff;
+    display: block;
+    height: 3px;
+    width: 25px;
+    position: relative;
+    transition: all 0.3s ease-in-out;
+}
+
+.menu-icon .navicon::before,
+.menu-icon .navicon::after {
+    content: '';
+    background: #fff;
+    height: 3px;
+    width: 25px;
+    position: absolute;
+    left: 0;
+    transition: all 0.3s ease-in-out;
+}
+
+.menu-icon .navicon::before {
+    top: -8px;
+}
+
+.menu-icon .navicon::after {
+    top: 8px;
+}
+
+.menu-btn:checked+.menu-icon .navicon {
+    background: transparent;
+}
+
+.menu-btn:checked+.menu-icon .navicon::before {
+    transform: rotate(45deg);
+    top: 0;
+}
+
+.menu-btn:checked+.menu-icon .navicon::after {
+    transform: rotate(-45deg);
+    top: 0;
+}
+
+.dec {
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+    position: absolute;
+}
+.button-style {
+    padding: 10px 20px;
+    background-color: #ffcc00;
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.button-style:hover {
+    background-color: #e6b800;
+}
+
+/* Tablette  */
+@media screen and (min-width: 960px) and (max-width: 1153px) {
+    #ulnav {
+        gap: 10px;
+    }
+
+    .nav-link {
+        font-size: 14px;
+        width: 100%;
+    }
+
+    .nav-logo img {
+        height: 40px;
+    }
+
+    .profile-icon {
+        height: 40px;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .tablet_vue {
+        display: none;
+    }
+}
+
+
+/* Telephone  */
+@media screen and (max-width: 960px) {
+    #ulnav {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 10vh;
+        right: 0;
+        width: 35%;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        padding: 20px 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    #ulnav.show {
+        display: block;
+    }
+
+    .nav-link {
+        display: block;
+        padding: 15px 20px;
+        font-size: 16px;
+        text-align: center;
+    }
+
+    .menu-icon {
+        display: block;
+    }
+
+    .profile-icon {
+        display: none;
+    }
+
+}
+/* Footer */
+.footer {
+    background-color: #1C1C1C;
+    color: #ffffff;
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 15px;
+    position: static;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 2px solid #ffcc00;
+    padding: 20px;
+
+}
+
