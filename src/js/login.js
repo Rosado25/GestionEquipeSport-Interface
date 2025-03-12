@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
-        console.log('Sending data:', { email, password });
 
         try {
             const response = await fetch('http://localhost/R4.01/gestionequipesport-auth-api/src/routes/auth.php/api/login', {
@@ -42,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const data = await response.json();
-            console.log('Response data:', data);
 
             displayMessage(response.ok, data.message || 'Erreurs lors de votre connexion');
         } catch (error) {
