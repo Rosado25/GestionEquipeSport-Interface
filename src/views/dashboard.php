@@ -13,7 +13,8 @@
 <body>
 
     <header>
-       <?php // include '../components/navbar.php'; ?>
+        <?php // include '../components/navbar.php'; 
+        ?>
     </header>
 
     <main>
@@ -23,11 +24,13 @@
                 <div class="card cardNextMatch">
                     <h3><i class="fas fa-calendar-alt"></i> Prochain Match</h3>
                     <!-- affichage de prochain match -->
+                    <strong id="prochainMatch"></strong>
                 </div>
 
                 <div class="card cardnbPoint">
                     <h3><i class="fas fa-trophy"></i> Points de l'équipe</h3>
                     <!-- points de l'equipe -->
+                    <strong id="points"></strong>
                     <p class="legend">1 match gagné = 3 points, 1 match nul = 1 point</p>
                 </div>
 
@@ -41,7 +44,7 @@
                                 <th>Résultat</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="dernierMatchs">
                             <!-- affichage des derniers trois matchs, avec score, resultat et nom des equipes -->
                         </tbody>
                     </table>
@@ -60,16 +63,16 @@
                 <div class="card Statistiquecard">
                     <h2><i class="fas fa-chart-line"></i> Statistiques de l'équipe</h2>
                     <ul>
-                        <li><strong>Pourcentage de victoires : </strong><!-- affichage de Pourcentage de victoires --></li>
-                        <li><strong>Matchs joués : </strong><!-- affichage de Matchs joués --></li>
-                        <li><strong>Matchs gagnés : </strong><!-- affichage de Matchs gagnés --></li>
-                        <li><strong>Buts marqués : </strong><!-- affichage de Buts marqués --></li>
-                        <li><strong>Buts subis : </strong><!-- affichage de Buts subis --></li>
-                        <li><strong>Buts par match : </strong><!-- affichage de Buts par match --></li>
-                        <li><strong>Clean Sheets : </strong><!-- affichage de Clean Sheets --></li>
-                        <li><strong>Différence de buts : </strong><!-- affichage de Différence de buts --></li>
-                        <li><strong>Performance de l'équipe : </strong><!-- affichage de Performance de l'équipe --></li>
-                        <li><strong>Moyenne des notes : </strong><!-- affichage de Moyenne des notes --></li>
+                        <li><strong id=victories>Pourcentage de victoires : </strong><!-- affichage de Pourcentage de victoires --></li>
+                        <li><strong id=NbMatchs>Matchs joués : </strong><!-- affichage de Matchs joués --></li>
+                        <li><strong id=NbGagnés>Matchs gagnés : </strong><!-- affichage de Matchs gagnés --></li>
+                        <li><strong id=ButsM>Buts marqués : </strong><!-- affichage de Buts marqués --></li>
+                        <li><strong id=ButsS>Buts subis : </strong><!-- affichage de Buts subis --></li>
+                        <li><strong id=ButsPm>Buts par match : </strong><!-- affichage de Buts par match --></li>
+                        <li><strong id=Cs>Clean Sheets : </strong><!-- affichage de Clean Sheets --></li>
+                        <li><strong id=Db>Différence de buts : </strong><!-- affichage de Différence de buts --></li>
+                        <li><strong id=PerformanceEquipe>Performance de l'équipe : </strong><!-- affichage de Performance de l'équipe --></li>
+                        <li><strong id=MoyenneNotes>Moyenne des notes : </strong><!-- affichage de Moyenne des notes --></li>
                     </ul>
                 </div>
 
