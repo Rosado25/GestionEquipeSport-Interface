@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../css/DashBoard.css">
     <!-- Permet de faire des graphique avec chart js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src=../js/dashboard.js></script>
 </head>
 
 <body>
