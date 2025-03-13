@@ -13,7 +13,7 @@
 <body>
 
     <header>
-        <!-- NavBar -->
+       <?php // include '../components/navbar.php'; ?>
     </header>
 
     <main>

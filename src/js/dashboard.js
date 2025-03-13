@@ -1,32 +1,74 @@
-/**
- * Script pour le chart graphique
- */
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        // Récupérer les 5 derniers matchs depuis l'API
-        const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/last-matches?numMatchs=5");
-        const derniersCinqMatchs = await response.json();
+        // Fetch the last 2 matches from the API
+        const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/last-matches?numMatches=2");
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const responseData = await response.json();
+        console.log(responseData); // Log the entire response to inspect its structure
 
-        // Initialiser les tableaux pour les données du graphique
+        // Assume the data is in a property 'data'
+        const data = responseData.data;
+        if (!Array.isArray(data)) {
+            throw new Error("The returned data is not an array");
+        }
+
+        // Initialize arrays for chart data
         const labels = [];
         const performanceData = [];
 
-        // Remplir les données
-        derniersCinqMatchs.forEach(match => {
-            labels.push(new Date(match.date_heure).toLocaleDateString("fr-FR"));
-            performanceData.push(match.goals_scored - match.goals_conceded); // Calcul de la performance
-        });
+        // Fill the data
+        for (const match of data) {
+            const date = new Date(match.date_heure);
+            if (isNaN(date) || match.date_heure === "0000-00-00 00:00:00") {
+                console.warn(`Skipping invalid date format: ${match.date_heure}`);
+                continue;
+            }
+            labels.push(date.toLocaleDateString("fr-FR"));
 
-        // Sélectionner le canvas du graphique
+            // Calculate performance using the API
+            const performanceResponse = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/calculate-performance", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ match })
+            });
+
+            if (!performanceResponse.ok) {
+                throw new Error(`HTTP error! status: ${performanceResponse.status}`);
+            }
+
+            const performanceDataResponse = await performanceResponse.json();
+            console.log("Performance Data Response:", performanceDataResponse); // Log the performance data response
+
+            if (performanceDataResponse && performanceDataResponse.performance !== undefined) {
+                performanceData.push(performanceDataResponse.performance);
+            } else {
+                console.warn("Performance data is undefined for match:", match);
+                performanceData.push(null);
+            }
+        }
+
+        console.log("Labels:", labels);
+        console.log("Performance Data:", performanceData);
+
+        // Check if data arrays are not empty
+        if (labels.length === 0 || performanceData.length === 0) {
+            throw new Error("No valid data to display in the chart");
+        }
+
+        // Select the chart canvas
         const ctx = document.getElementById("performanceChart").getContext("2d");
 
-        // Générer le graphique avec Chart.js
+        // Generate the chart with Chart.js
         new Chart(ctx, {
             type: "line",
             data: {
                 labels: labels,
                 datasets: [{
-                    label: "Performance de l'équipe",
+                    label: "Team Performance",
                     data: performanceData,
                     borderColor: "#ffcc00",
                     backgroundColor: "rgba(255, 204, 0, 0.2)",
@@ -44,7 +86,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
     } catch (error) {
-        console.error("Erreur lors du chargement des données:", error);
+        console.error("Error loading data:", error);
     }
 });
-
