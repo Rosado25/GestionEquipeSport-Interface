@@ -1,34 +1,30 @@
 document.addEventListener("DOMContentLoaded", async () => {
+
+    const baseUrl = "/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/";
+
     try {
-        // Fetch the last 5 matches from the API
-        const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/last-matches?numMatches=5");
+        const response = await fetch(`${baseUrl}last-matches?numMatches=5`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const responseData = await response.json();
-        console.log(responseData); // Log the entire response to inspect its structure
 
-        // Assume the data is in a property 'data'
         const data = responseData.data;
         if (!Array.isArray(data)) {
-            throw new Error("The returned data is not an array");
+            throw new Error("Les données ne sont pas un tableau");
         }
 
-        // Initialize arrays for chart data
         const labels = [];
         const performanceData = [];
 
-        // Fill the data
         for (const match of data) {
             const date = new Date(match.date_heure);
             if (isNaN(date) || match.date_heure === "0000-00-00 00:00:00") {
-                console.warn(`Skipping invalid date format: ${match.date_heure}`);
                 continue;
             }
             labels.push(date.toLocaleDateString("fr-FR"));
 
-            // Calculate performance using the API
-            const performanceResponse = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/calculate-performance", {
+            const performanceResponse = await fetch(`${baseUrl}calculate-performance`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -41,28 +37,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             const performanceDataResponse = await performanceResponse.json();
-            console.log("Performance Data Response:", performanceDataResponse); // Log the performance data response
-
             if (performanceDataResponse && performanceDataResponse.performance !== undefined) {
                 performanceData.push(performanceDataResponse.performance);
             } else {
-                console.warn("Performance data is undefined for match:", match);
                 performanceData.push(null);
             }
         }
 
-        console.log("Labels:", labels);
-        console.log("Performance Data:", performanceData);
-
-        // Check if data arrays are not empty
         if (labels.length === 0 || performanceData.length === 0) {
-            throw new Error("No valid data to display in the chart");
+            throw new Error("Les données sont invalide pour ce graphique ");
         }
 
-        // Select the chart canvas
         const ctx = document.getElementById("performanceChart").getContext("2d");
-
-        // Generate the chart with Chart.js
         new Chart(ctx, {
             type: "line",
             data: {
@@ -86,27 +72,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
     } catch (error) {
-        console.error("Error loading data:", error);
+        console.error("Erreur concernant les données:", error);
     }
 
-    // Récupération et affichage du prochain match
+    // Récupère le prochain match
     async function fetchNextMatch() {
         try {
-            const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/next-game");
+            const response = await fetch(`${baseUrl}next-game`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
-
-            // Sélection de l'id où afficher les infos
             const cardNextMatch = document.querySelector("#prochainMatch");
 
-
-            // Vérifier si des données sont reçues
             if (responseData.data) {
-                console.log(responseData)
                 const { date_heure, Adversaire, lieu } = responseData.data;
-                console.log(responseData.data)
                 cardNextMatch.innerHTML += `
                 <p><strong>AbdelFC</strong> vs <strong>${Adversaire}</strong></p>
                 <p>Date et Heure: ${date_heure}</p>
@@ -121,60 +101,52 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    // Récupère les Points de l'équipe
     async function fetchTeamPoints() {
         try {
-            const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/points");
+            const response = await fetch(`${baseUrl}points`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
-
-            // Sélection de l'id où afficher les infos
             const PointsText = document.querySelector("#points");
 
             if (responseData.data) {
-                console.log(responseData)
                 const data = responseData.data;
-                console.log(responseData.data)
                 PointsText.innerHTML += `
                 <p><strong>${data} points</strong></p>
             `;
             } else {
                 PointsText.innerHTML += `<p>0</p>`;
             }
-
         } catch (error) {
             console.error("Erreur lors de la récupération des points :", error);
             document.querySelector("#points").innerHTML += `<p>Impossible de charger les points.</p>`;
         }
     }
-
+    // Les 3 derniers matchs
     async function fetchLastThreeMatches() {
-        console.log("coucou")
         try {
-            const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/last-matches?numMatches=3");
+            const response = await fetch(`${baseUrl}last-matches?numMatches=3`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
-
             const data = responseData.data;
             if (!Array.isArray(data)) {
                 throw new Error("Les données retournées ne sont pas un tableau");
             }
 
             const tbody = document.getElementById("dernierMatchs");
-            tbody.innerHTML = ""; // Nettoie le tableau avant d'ajouter de nouveaux matchs
-
+            tbody.innerHTML = "";
             data.forEach(match => {
                 const adversaire = match.Adversaire;
                 const score = match.résultat;
 
-                // Vérifier si le score est bien dans le format "X-Y"
                 if (typeof score !== "string" || !score.includes("-")) return;
                 const [myTeamScore, opponentScore] = score.split("-").map(Number);
 
-                const isHomeGame = match.domicile === true; // Suppose que l'API retourne un booléen pour domicile
+                const isHomeGame = match.domicile === true;
                 const resultat = myTeamScore > opponentScore ? "Victoire" : myTeamScore < opponentScore ? "Défaite" : "Nul";
 
                 const row = document.createElement("tr");
@@ -184,7 +156,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <td>${resultat}</td>
                 `;
                 tbody.appendChild(row);
-                console.log("cc");
             });
 
         } catch (error) {
@@ -193,21 +164,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    async function fetchPorcentageVictories() {
+    // Pourcentage de victoires
+    async function fetchWinRate() {
         try {
-            const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/win-rate");
+            const response = await fetch(`${baseUrl}win-rate`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
-
-            // Sélection de l'id où afficher les infos
             const PointsText = document.querySelector("#victories");
 
             if (responseData.data) {
-                console.log(responseData)
                 const data = responseData.data;
-                console.log(responseData.data)
                 PointsText.innerHTML += `
                 <strong>${data.toFixed(1)}%</strong>
             `;
@@ -221,21 +189,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    async function fetchMatchsJouees() {
+    //Nombre de matchs joués
+    async function fetchMatchesPlayed() {
         try {
-            const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/matches-played");
+            const response = await fetch(`${baseUrl}matches-played`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
-
-            // Sélection de l'id où afficher les infos
             const PointsText = document.querySelector("#NbMatchs");
 
             if (responseData.data) {
-                console.log(responseData)
                 const data = responseData.data;
-                console.log(responseData.data)
                 PointsText.innerHTML += `
                 <strong>${data}</strong>
             `;
@@ -248,22 +213,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.querySelector("#NbMatchs").innerHTML += `<p>Impossible de charger le NbMatchs.</p>`;
         }
     }
-
-    async function fetchMatchsGagnées() {
+    // Nombre de matchs gagnés
+    async function fetchMatchesWon() {
         try {
-            const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/count-matches-won");
+            const response = await fetch(`${baseUrl}count-matches-won`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
-
-            // Sélection de l'id où afficher les infos
             const PointsText = document.querySelector("#NbGagnés");
 
             if (responseData.data) {
-                console.log(responseData)
                 const data = responseData.data;
-                console.log(responseData.data)
                 PointsText.innerHTML += `
                 <strong>${data}</strong>
             `;
@@ -276,22 +237,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.querySelector("#NbGagnés").innerHTML += `<p>Impossible de charger le NbGagnés.</p>`;
         }
     }
-
-    async function fetchButsMarques() {
+    // Nombre de buts marqués
+    async function fetchGoalsScored() {
         try {
-            const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/goals-scored");
+            const response = await fetch(`${baseUrl}goals-scored`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
-
-            // Sélection de l'id où afficher les infos
             const PointsText = document.querySelector("#ButsM");
 
             if (responseData.data) {
-                console.log(responseData)
                 const data = responseData.data;
-                console.log(responseData.data)
                 PointsText.innerHTML += `
                 <strong>${data}</strong>
             `;
@@ -305,21 +262,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    async function fetchButsSubis() {
+    async function fetchGoalsConceded() {
         try {
-            const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/goals-conceded");
+            const response = await fetch(`${baseUrl}goals-conceded`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
-
-            // Sélection de l'id où afficher les infos
             const PointsText = document.querySelector("#ButsS");
 
             if (responseData.data) {
-                console.log(responseData)
                 const data = responseData.data;
-                console.log(responseData.data)
                 PointsText.innerHTML += `
                 <strong>${data}</strong>
             `;
@@ -333,21 +286,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    async function fetchButsParMatch() {
+    // Buts par match
+    async function fetchGoalsPerGame() {
         try {
-            const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/goals-per-game");
+            const response = await fetch(`${baseUrl}goals-per-game`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
-
-            // Sélection de l'id où afficher les infos
             const PointsText = document.querySelector("#ButsPm");
 
             if (responseData.data) {
-                console.log(responseData)
                 const data = responseData.data;
-                console.log(responseData.data)
                 PointsText.innerHTML += `
                 <strong>${data}</strong>
             `;
@@ -361,21 +311,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    // Nombre de clean sheets
     async function fetchCleanSheets() {
         try {
-            const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/clean-sheets");
+            const response = await fetch(`${baseUrl}clean-sheets`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
 
-            // Sélection de l'id où afficher les infos
             const PointsText = document.querySelector("#Cs");
 
             if (responseData.data) {
-                console.log(responseData)
                 const data = responseData.data;
-                console.log(responseData.data)
                 PointsText.innerHTML += `
                 <strong>${data}</strong>
             `;
@@ -385,25 +333,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         } catch (error) {
             console.error("Erreur lors de la récupération de Cs :", error);
-            document.querySelector("#Cs").innerHTML += `<p>Impossible de charger le Cs.</p>`;
+            document.querySelector("#Cs").innerHTML += `<p>Impossible de charger les cleanSheets.</p>`;
         }
     }
 
-    async function fetchDifferenceButs() {
+    // Différence de buts de l'équipe par rapport au but concédé
+    async function fetchGoalsDifference() {
         try {
-            const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/goals-diff");
+            const response = await fetch(`${baseUrl}goals-diff`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
-
-            // Sélection de l'id où afficher les infos
             const PointsText = document.querySelector("#Db");
 
             if (responseData.data) {
-                console.log(responseData)
                 const data = responseData.data;
-                console.log(responseData.data)
                 PointsText.innerHTML += `
                 <strong>${data}</strong>
             `;
@@ -416,22 +361,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.querySelector("#Db").innerHTML += `<p>Impossible de charger le Db.</p>`;
         }
     }
-
-    async function fetchPerformanceEquipe() {
+    // Performance de l'équipe
+    async function fetchTeamPerformanceNote() {
         try {
-            const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/team-performance-note");
+            const response = await fetch(`${baseUrl}team-performance-note`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
-
-            // Sélection de l'id où afficher les infos
             const PointsText = document.querySelector("#PerformanceEquipe");
 
             if (responseData.data) {
-                console.log(responseData)
                 const data = responseData.data;
-                console.log(responseData.data)
                 PointsText.innerHTML += `
                 <strong>${data.toFixed(1)}</strong>
             `;
@@ -445,21 +386,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    async function fetchMoyenneNotes() {
+    // Moyenne des notes de l'équipe
+    async function fetchTeamAverageNote() {
         try {
-            const response = await fetch("/R4.01/gestionequipesport-api/src/routes/dashboard.php/api/team-average-note");
+            const response = await fetch(`${baseUrl}team-average-note`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const responseData = await response.json();
-
-            // Sélection de l'id où afficher les infos
             const PointsText = document.querySelector("#MoyenneNotes");
 
             if (responseData.data) {
-                console.log(responseData)
                 const data = responseData.data;
-                console.log(responseData.data)
                 PointsText.innerHTML += `
                 <strong>${data.toFixed(1)}</strong>
             `;
@@ -473,18 +411,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    fetchMoyenneNotes();
-    fetchPerformanceEquipe();
-    fetchDifferenceButs();
-    fetchCleanSheets();
-    fetchButsParMatch();
-    fetchButsSubis();
-    fetchButsMarques();
-    fetchMatchsGagnées();
-    fetchMatchsJouees();
-    fetchPorcentageVictories();
-    fetchLastThreeMatches();
-    fetchNextMatch();
-    fetchTeamPoints();
+    await fetchTeamAverageNote();
+    await fetchTeamPerformanceNote();
+    await fetchGoalsDifference();
+    await fetchCleanSheets();
+    await fetchGoalsPerGame();
+    await fetchGoalsConceded();
+    await fetchGoalsScored();
+    await fetchMatchesWon();
+    await fetchMatchesPlayed();
+    await fetchWinRate();
+    await fetchLastThreeMatches();
+    await fetchNextMatch();
+    await fetchTeamPoints();
 
 });
