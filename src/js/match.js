@@ -3,15 +3,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     const tableBody = document.querySelector("tbody");
     let ListeMatch = [];
 
-    async function addMatch(matchData) {
+    async function addMatch(Data) {
         try {
+            console.log(Data);
             console.log("Ajout d'un match...");
             const response = await fetch(`${baseUrl}match`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(matchData)
+                body: JSON.stringify(Data)
             });
-            return await response.json();
+            console.log(JSON.stringify(Data));
+            const text = await response.text();  // Récupère la réponse brute
+            console.log("Réponse brute de l'API:", text);  // Affiche la réponse dans la console
+
+            return response;
         } catch (error) {
             console.error("Erreur lors de l'ajout du match:", error);
         }
@@ -117,6 +122,28 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }
     });
+
+    const form = document.querySelector(".form-group");
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Empêche la soumission classique
+
+        const matchData = {
+            Date: document.getElementById("date").value,
+            Adversaire: document.getElementById("adversaire").value,
+            Lieu: document.getElementById("lieu").value
+        };
+
+        const response = await addMatch(matchData);
+        if (response && response.ok) {
+            alert("Match ajouté avec succès !");
+            getAllMatch(); // Rafraîchir la liste des matchs
+            form.reset(); // Réinitialiser le formulaire
+        } else {
+            alert("Erreur lors de l'ajout du match.");
+        }
+    });
+
+
 
     const editPopup = document.getElementById("editPopup");
     const editForm = document.querySelector(".edit-form");
