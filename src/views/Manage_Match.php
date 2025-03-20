@@ -97,25 +97,25 @@
             <div class="popup-container">
                 <button class="close-btn">&times;</button>
                 <h2>Modifier le Match</h2>
-                <form method="PUT" class="edit-form">
+                <form method="POST" class="edit-form">
                     <input type="hidden" name="id_matches" id="editMatchId">
 
                     <label for="editDate">Date et Heure :</label>
-                    <input type="datetime-local" id="editDate" name="Date" required>
+                    <input type="datetime-local" id="editDate" name="date_heure" required>
 
                     <label for="editAdversaire">Nom de l'équipe adverse :</label>
                     <input type="text" id="editAdversaire" name="Adversaire" required>
 
                     <label for="editLieu">Lieu :</label>
-                    <select id="editLieu" name="Lieu" required>
+                    <select id="editLieu" name="lieu" required>
                         <option value="Domicile">Domicile</option>
                         <option value="Exterieur">Extérieur</option>
                     </select>
 
                     <label for="editScore">Score :</label>
-                    <input type="text" id="editScore" name="Score" placeholder="0-0" pattern="\d+-\d+" title="Format: 0-0">
+                    <input type="text" id="editScore" name="résultat" placeholder="0-0" pattern="\d+-\d+" title="Format: 0-0">
 
-                    <button type="submit" name="edit-match">Enregistrer les modifications</button>
+                    <button type="submit" class="edit-match" name="edit-match">Enregistrer les modifications</button>
                 </form>
             </div>
         </div>

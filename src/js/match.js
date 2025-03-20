@@ -46,14 +46,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     async function updateMatch(matchData) {
-        console.log(`Mise à jour du match ID: ${matchData.id_match}`);
+        console.log(`Mise à jour du match ID: ${matchData.Id_Match_Foot}`);
         try {
             const response = await fetch(`${baseUrl}match`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(matchData)
             });
-            return await response.json();
+            console.log(JSON.stringify(matchData));
+            const text = await response.text();  // Récupère la réponse brute
+            console.log("Réponse brute de l'API:", text);  // Affiche la réponse dans la console
+            console.log(matchData)
+            if (!matchData.date_heure || !matchData.Adversaire || !matchData.lieu || !matchData.résultat || !matchData.Id_Match_Foot) {
+                console.error("Erreur: Paramètre manquant dans matchData");
+                return;
+            }
+
+
+            console.log(response);
+            return response;
         } catch (error) {
             console.error("Erreur lors de la mise à jour du match:", error);
         }
@@ -143,10 +154,34 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
+    console.log("debut")
+    const editMatch = document.querySelector(".edit-match");
+    editMatch.addEventListener("click", async (event) => {
+        console.log("on est la edit edit");
+        event.preventDefault();
+
+        const matchData = {
+            Id_Match_Foot: editMatchId.value,
+            date_heure: editDate.value,
+            Adversaire: editAdversaire.value,
+            lieu: editLieu.value,
+            résultat: editScore.value
+        };
+
+        const response = await updateMatch(matchData);
+        if (response && response.ok) {
+            alert("Match mis à jour avec succès !");
+            closePopup();
+            getAllMatch(); // Rafraîchir la liste des matchs
+        } else {
+            alert("Erreur lors de la mise à jour du match.");
+        }
+    });
+
+
 
 
     const editPopup = document.getElementById("editPopup");
-    const editForm = document.querySelector(".edit-form");
     const editMatchId = document.getElementById("editMatchId");
     const editDate = document.getElementById("editDate");
     const editAdversaire = document.getElementById("editAdversaire");
