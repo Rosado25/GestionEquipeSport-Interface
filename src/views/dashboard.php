@@ -54,7 +54,7 @@
                     <h2><i class="fas fa-star"></i> Meilleur Joueur</h2>
                     <p id="test"><strong><!-- affichage du meilleur jouer --></strong></p>
                     <p id="BestPlayerMoyenne">Moyenne des notes : <!-- moyenne des notes du meilleur jouer --></p>
-                    <img src="" alt="Photo du joueur"> <!-- affichage du photo du meilleure jouer -->
+                    <img id="BestPlayerImg" src="" alt="Photo du joueur"> <!-- affichage du photo du meilleure jouer -->
                 </div>
             </div>
 

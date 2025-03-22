@@ -390,14 +390,19 @@ document.addEventListener("DOMContentLoaded", async () => {
             const responseData = await response.json();
             const PointsText = document.querySelector("#test");
             const MoyenneNote = document.querySelector("#BestPlayerMoyenne");
+            const PlayerImg = document.querySelector("#BestPlayerImg");
 
             if (responseData.data) {
-                const { Nom_Joueur, moyenneNotes } = responseData.data;
+                const { Nom_Joueur, moyenneNotes, Image } = responseData.data;
                 PointsText.innerHTML += `<strong>${Nom_Joueur}</strong>`;
                 MoyenneNote.innerHTML += `<strong>${moyenneNotes}</strong>`;
+                PlayerImg.src = `../assets/data-player/${Image}`;
+                PlayerImg.alt = `Photo de ${Nom_Joueur}`;
             } else {
                 PointsText.innerHTML += `0`;
                 MoyenneNote.innerHTML += `0`;
+                PlayerImg.src = "";
+                PlayerImg.alt = "Aucune image disponible";
             }
         } catch (error) {
             console.error("Erreur lors de la récupération de MoyenneNotes :", error);
