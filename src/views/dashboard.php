@@ -8,13 +8,13 @@
     <!-- Permet de faire des graphique avec chart js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src=../js/dashboard.js></script>
+
 </head>
 
 <body>
 
     <header>
-        <?php // include '../components/navbar.php'; 
-        ?>
+        <?php  include '../components/navbar.php'; ?>
     </header>
 
     <main>
@@ -52,8 +52,8 @@
 
                 <div class="card BestPlayer">
                     <h2><i class="fas fa-star"></i> Meilleur Joueur</h2>
-                    <p><strong><!-- affichage du meilleur jouer --></strong></p>
-                    <p>Moyenne des notes : <!-- moyenne des notes du meilleur jouer --></p>
+                    <p id="test"><strong><!-- affichage du meilleur jouer --></strong></p>
+                    <p id="BestPlayerMoyenne">Moyenne des notes : <!-- moyenne des notes du meilleur jouer --></p>
                     <img src="" alt="Photo du joueur"> <!-- affichage du photo du meilleure jouer -->
                 </div>
             </div>
