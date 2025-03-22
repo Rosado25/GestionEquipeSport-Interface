@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const tableBody = document.querySelector("tbody");
     let ListeMatch = [];
 
+    //add-match
     async function addMatch(Data) {
         try {
             console.log(Data);
@@ -22,6 +23,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    const form = document.querySelector(".form-group");
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Empêche la soumission classique
+
+        const matchData = {
+            Date: document.getElementById("date").value,
+            Adversaire: document.getElementById("adversaire").value,
+            Lieu: document.getElementById("lieu").value
+        };
+
+        const response = await addMatch(matchData);
+        if (response && response.ok) {
+            alert("Match ajouté avec succès !");
+            getAllMatch(); // Rafraîchir la liste des matchs
+            form.reset(); // Réinitialiser le formulaire
+        } else {
+            alert("Erreur lors de l'ajout du match.");
+        }
+    });
+
+    //delete-match
     async function deleteMatch(matchId) {
         console.log(`Suppression du match ID: ${matchId}`);
         try {
@@ -34,7 +56,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("Réponse brute de l'API:", text);  // Affiche la réponse dans la console
 
             const result = JSON.parse(text);
-            if (result.success) {
+            console.log(result)
+            if (result.status == 200) {
                 alert("Match supprimé avec succès !");
                 getAllMatch(); // Recharge la liste après suppression
             } else {
@@ -45,6 +68,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    document.addEventListener("click", async (event) => {
+        if (event.target.closest(".delete-btn")) {
+            const matchId = event.target.closest(".delete-btn").dataset.matchId;
+            if (!matchId) {
+                console.error("ID de match non trouvé !");
+                return;
+            }
+
+            const confirmDelete = confirm("Êtes-vous sûr de vouloir supprimer ce match ?");
+            if (confirmDelete) {
+                await deleteMatch(matchId);
+            }
+        }
+    });
+
+    //edit-match
     async function updateMatch(matchData) {
         console.log(`Mise à jour du match ID: ${matchData.Id_Match_Foot}`);
         try {
@@ -70,6 +109,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    const editMatch = document.querySelector(".edit-match");
+    editMatch.addEventListener("click", async (event) => {
+        event.preventDefault();
+
+        const matchData = {
+            Id_Match_Foot: editMatchId.value,
+            date_heure: editDate.value,
+            Adversaire: editAdversaire.value,
+            lieu: editLieu.value,
+            résultat: editScore.value
+        };
+
+        const response = await updateMatch(matchData);
+        if (response && response.ok) {
+            alert("Match mis à jour avec succès !");
+            closePopup();
+            getAllMatch(); // Rafraîchir la liste des matchs
+        } else {
+            alert("Erreur lors de la mise à jour du match.");
+        }
+    });
+
+    //liste des matchs
     async function getAllMatch() {
         try {
             console.log("Récupération de tous les matchs...");
@@ -119,68 +181,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    document.addEventListener("click", async (event) => {
-        if (event.target.closest(".delete-btn")) {
-            const matchId = event.target.closest(".delete-btn").dataset.matchId;
-            if (!matchId) {
-                console.error("ID de match non trouvé !");
-                return;
-            }
-
-            const confirmDelete = confirm("Êtes-vous sûr de vouloir supprimer ce match ?");
-            if (confirmDelete) {
-                await deleteMatch(matchId);
-            }
-        }
-    });
-
-    const form = document.querySelector(".form-group");
-    form.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Empêche la soumission classique
-
-        const matchData = {
-            Date: document.getElementById("date").value,
-            Adversaire: document.getElementById("adversaire").value,
-            Lieu: document.getElementById("lieu").value
-        };
-
-        const response = await addMatch(matchData);
-        if (response && response.ok) {
-            alert("Match ajouté avec succès !");
-            getAllMatch(); // Rafraîchir la liste des matchs
-            form.reset(); // Réinitialiser le formulaire
-        } else {
-            alert("Erreur lors de l'ajout du match.");
-        }
-    });
-
-    console.log("debut")
-    const editMatch = document.querySelector(".edit-match");
-    editMatch.addEventListener("click", async (event) => {
-        console.log("on est la edit edit");
-        event.preventDefault();
-
-        const matchData = {
-            Id_Match_Foot: editMatchId.value,
-            date_heure: editDate.value,
-            Adversaire: editAdversaire.value,
-            lieu: editLieu.value,
-            résultat: editScore.value
-        };
-
-        const response = await updateMatch(matchData);
-        if (response && response.ok) {
-            alert("Match mis à jour avec succès !");
-            closePopup();
-            getAllMatch(); // Rafraîchir la liste des matchs
-        } else {
-            alert("Erreur lors de la mise à jour du match.");
-        }
-    });
-
-
-
-
+    //Pop-up
     const editPopup = document.getElementById("editPopup");
     const editMatchId = document.getElementById("editMatchId");
     const editDate = document.getElementById("editDate");
