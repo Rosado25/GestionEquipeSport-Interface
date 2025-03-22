@@ -215,5 +215,49 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     closeBtn.addEventListener("click", closePopup);
 
+    //numero de matchs joues
+    async function fetchMatchesPlayed() {
+        try {
+            const response = await fetch(`${baseUrl}matches/played`);
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP! statut: ${response.status}`);
+            }
+            const responseData = await response.json();
+            const PointsText = document.querySelector("#NbMtc");
+
+            if (responseData.data) {
+                PointsText.innerHTML += `<strong>${responseData.data}</strong>`;
+            } else {
+                PointsText.innerHTML += `<p>0</p>`;
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération le NbMatchs :", error);
+            document.querySelector("#NbMtc").innerHTML += `<p>Impossible de charger le NbMatchs.</p>`;
+        }
+    }
+
+    //numero de victoires
+    async function fetchVictoires() {
+        try {
+            const response = await fetch(`${baseUrl}matches/won`);
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP! statut: ${response.status}`);
+            }
+            const responseData = await response.json();
+            const PointsText = document.querySelector("#NbVic");
+
+            if (responseData.data) {
+                PointsText.innerHTML += `<strong>${responseData.data} Victoires </strong>`;
+            } else {
+                PointsText.innerHTML += `<p>0 Victoires</p>`;
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération le NbVictoires :", error);
+            document.querySelector("#NbVic").innerHTML += `<p>Impossible de charger le NbVictoires.</p>`;
+        }
+    }
+
     await getAllMatch();
+    await fetchMatchesPlayed();
+    await fetchVictoires();
 });
