@@ -235,9 +235,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             const PointsText = document.querySelector("#NbMtc");
 
             if (responseData.data) {
-                PointsText.innerHTML += `<strong>${responseData.data}</strong>`;
+                PointsText.innerHTML += `<strong>${responseData.data} Matchs</strong>`;
             } else {
-                PointsText.innerHTML += `<p>0</p>`;
+                PointsText.innerHTML += `<p>0 Matchs</p>`;
             }
         } catch (error) {
             console.error("Erreur lors de la récupération le NbMatchs :", error);
@@ -277,9 +277,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             const PointsText = document.querySelector("#NbJrs");
 
             if (responseData.data) {
-                PointsText.innerHTML += `<strong>${responseData.data} </strong>`;
+                PointsText.innerHTML += `<strong>${responseData.data} Jouers</strong>`;
             } else {
-                PointsText.innerHTML += `<p>0</p>`;
+                PointsText.innerHTML += `<p>0 Jouers</p>`;
             }
         } catch (error) {
             console.error("Erreur lors de la récupération de numero jouers :", error);
