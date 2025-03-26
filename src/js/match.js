@@ -266,7 +266,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    //numero de jouers
+    async function fetchNbJouers() {
+        try {
+            const response = await fetch(`/R4.01/gestionequipesport-api/src/routes/player.php/api/player/player-count`);
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP! statut: ${response.status}`);
+            }
+            const responseData = await response.json();
+            const PointsText = document.querySelector("#NbJrs");
+
+            if (responseData.data) {
+                PointsText.innerHTML += `<strong>${responseData.data} </strong>`;
+            } else {
+                PointsText.innerHTML += `<p>0</p>`;
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération de numero jouers :", error);
+            document.querySelector("#NbJrs").innerHTML += `<p>Impossible de charger le numero de jouers.</p>`;
+        }
+    }
+
     await getAllMatch();
     await fetchMatchesPlayed();
     await fetchVictoires();
+    await fetchNbJouers();
 });
