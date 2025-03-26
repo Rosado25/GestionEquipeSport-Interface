@@ -87,6 +87,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function updateMatch(matchData) {
         console.log(`Mise à jour du match ID: ${matchData.Id_Match_Foot}`);
         try {
+
             const response = await fetch(`${baseUrl}match`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -96,12 +97,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             const text = await response.text();  // Récupère la réponse brute
             console.log("Réponse brute de l'API:", text);  // Affiche la réponse dans la console
             console.log(matchData)
-            if (!matchData.date_heure || !matchData.Adversaire || !matchData.lieu || !matchData.résultat || !matchData.Id_Match_Foot) {
-                console.error("Erreur: Paramètre manquant dans matchData");
-                return;
-            }
-
-
             console.log(response);
             return response;
         } catch (error) {
@@ -181,7 +176,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    //Pop-up
+    // Pop-up
     const editPopup = document.getElementById("editPopup");
     const editMatchId = document.getElementById("editMatchId");
     const editDate = document.getElementById("editDate");
@@ -198,14 +193,27 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
+        // Convertir la date du match
+        const now = new Date();
+        const matchDate = new Date(match.date_heure);
+        const matchPasse = matchDate < now; // True si le match est passé
+
+        // Remplir les champs
         editMatchId.value = match.Id_Match_Foot;
         editDate.value = match.date_heure && match.date_heure !== "0000-00-00 00:00:00"
-            ? new Date(match.date_heure).toISOString().slice(0, 16)
+            ? matchDate.toISOString().slice(0, 16)
             : "";
         editAdversaire.value = match.Adversaire || "";
         editLieu.value = match.lieu || "Domicile";
         editScore.value = match.résultat || "";
 
+        // Gérer la désactivation des champs
+        editDate.disabled = matchPasse;
+        editAdversaire.disabled = matchPasse;
+        editLieu.disabled = matchPasse;
+        editScore.disabled = !matchPasse; // Résultat modifiable seulement après le match
+
+        // Afficher le pop-up
         editPopup.style.display = "flex";
     };
 
@@ -214,6 +222,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     closeBtn.addEventListener("click", closePopup);
+
 
     //numero de matchs joues
     async function fetchMatchesPlayed() {
