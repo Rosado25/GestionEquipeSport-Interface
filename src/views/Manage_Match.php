@@ -33,21 +33,21 @@
             <div class="widget">
                 <i class="fas fa-futbol"></i>
                 <div class="widget-container">
-                    <h3><!-- Numero de matches --></h3>
+                    <h3 id="NbMtc"><!-- Numero de matches --></h3>
                     <p>Total des matchs joués</p>
                 </div>
             </div>
             <div class="widget">
                 <i class="fas fa-trophy"></i>
                 <div class="widget-container">
-                    <h3><!-- Numero de Victoires -->Victoires</h3>
+                    <h3 id="NbVic"><!-- Numero de Victoires --></h3>
                     <p>Total des victoires</p>
                 </div>
             </div>
             <div class="widget">
                 <i class="fas fa-users"></i>
                 <div class="widget-container">
-                    <h3><!-- Numero des joueres --></h3>
+                    <h3 id="NbJrs"><!-- Numero des joueres --></h3>
                     <p>Effectif total</p>
                 </div>
             </div>

@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const tableBody = document.querySelector("tbody");
     let ListeMatch = [];
 
+    //add-match
     async function addMatch(Data) {
         try {
             console.log(Data);
@@ -22,6 +23,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    const form = document.querySelector(".form-group");
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Empêche la soumission classique
+
+        const matchData = {
+            Date: document.getElementById("date").value,
+            Adversaire: document.getElementById("adversaire").value,
+            Lieu: document.getElementById("lieu").value
+        };
+
+        const response = await addMatch(matchData);
+        if (response && response.ok) {
+            alert("Match ajouté avec succès !");
+            getAllMatch(); // Rafraîchir la liste des matchs
+            form.reset(); // Réinitialiser le formulaire
+        } else {
+            alert("Erreur lors de l'ajout du match.");
+        }
+    });
+
+    //delete-match
     async function deleteMatch(matchId) {
         console.log(`Suppression du match ID: ${matchId}`);
         try {
@@ -34,7 +56,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("Réponse brute de l'API:", text);  // Affiche la réponse dans la console
 
             const result = JSON.parse(text);
-            if (result.success) {
+            console.log(result)
+            if (result.status == 200) {
                 alert("Match supprimé avec succès !");
                 getAllMatch(); // Recharge la liste après suppression
             } else {
@@ -45,9 +68,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    document.addEventListener("click", async (event) => {
+        if (event.target.closest(".delete-btn")) {
+            const matchId = event.target.closest(".delete-btn").dataset.matchId;
+            if (!matchId) {
+                console.error("ID de match non trouvé !");
+                return;
+            }
+
+            const confirmDelete = confirm("Êtes-vous sûr de vouloir supprimer ce match ?");
+            if (confirmDelete) {
+                await deleteMatch(matchId);
+            }
+        }
+    });
+
+    //edit-match
     async function updateMatch(matchData) {
         console.log(`Mise à jour du match ID: ${matchData.Id_Match_Foot}`);
         try {
+
             const response = await fetch(`${baseUrl}match`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -57,12 +97,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             const text = await response.text();  // Récupère la réponse brute
             console.log("Réponse brute de l'API:", text);  // Affiche la réponse dans la console
             console.log(matchData)
-            if (!matchData.date_heure || !matchData.Adversaire || !matchData.lieu || !matchData.résultat || !matchData.Id_Match_Foot) {
-                console.error("Erreur: Paramètre manquant dans matchData");
-                return;
-            }
-
-
             console.log(response);
             return response;
         } catch (error) {
@@ -70,6 +104,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    const editMatch = document.querySelector(".edit-match");
+    editMatch.addEventListener("click", async (event) => {
+        event.preventDefault();
+
+        const matchData = {
+            Id_Match_Foot: editMatchId.value,
+            date_heure: editDate.value,
+            Adversaire: editAdversaire.value,
+            lieu: editLieu.value,
+            résultat: editScore.value
+        };
+
+        const response = await updateMatch(matchData);
+        if (response && response.ok) {
+            alert("Match mis à jour avec succès !");
+            closePopup();
+            getAllMatch(); // Rafraîchir la liste des matchs
+        } else {
+            alert("Erreur lors de la mise à jour du match.");
+        }
+    });
+
+    //liste des matchs
     async function getAllMatch() {
         try {
             console.log("Récupération de tous les matchs...");
@@ -119,68 +176,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    document.addEventListener("click", async (event) => {
-        if (event.target.closest(".delete-btn")) {
-            const matchId = event.target.closest(".delete-btn").dataset.matchId;
-            if (!matchId) {
-                console.error("ID de match non trouvé !");
-                return;
-            }
-
-            const confirmDelete = confirm("Êtes-vous sûr de vouloir supprimer ce match ?");
-            if (confirmDelete) {
-                await deleteMatch(matchId);
-            }
-        }
-    });
-
-    const form = document.querySelector(".form-group");
-    form.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Empêche la soumission classique
-
-        const matchData = {
-            Date: document.getElementById("date").value,
-            Adversaire: document.getElementById("adversaire").value,
-            Lieu: document.getElementById("lieu").value
-        };
-
-        const response = await addMatch(matchData);
-        if (response && response.ok) {
-            alert("Match ajouté avec succès !");
-            getAllMatch(); // Rafraîchir la liste des matchs
-            form.reset(); // Réinitialiser le formulaire
-        } else {
-            alert("Erreur lors de l'ajout du match.");
-        }
-    });
-
-    console.log("debut")
-    const editMatch = document.querySelector(".edit-match");
-    editMatch.addEventListener("click", async (event) => {
-        console.log("on est la edit edit");
-        event.preventDefault();
-
-        const matchData = {
-            Id_Match_Foot: editMatchId.value,
-            date_heure: editDate.value,
-            Adversaire: editAdversaire.value,
-            lieu: editLieu.value,
-            résultat: editScore.value
-        };
-
-        const response = await updateMatch(matchData);
-        if (response && response.ok) {
-            alert("Match mis à jour avec succès !");
-            closePopup();
-            getAllMatch(); // Rafraîchir la liste des matchs
-        } else {
-            alert("Erreur lors de la mise à jour du match.");
-        }
-    });
-
-
-
-
+    // Pop-up
     const editPopup = document.getElementById("editPopup");
     const editMatchId = document.getElementById("editMatchId");
     const editDate = document.getElementById("editDate");
@@ -197,14 +193,27 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
+        // Convertir la date du match
+        const now = new Date();
+        const matchDate = new Date(match.date_heure);
+        const matchPasse = matchDate < now; // True si le match est passé
+
+        // Remplir les champs
         editMatchId.value = match.Id_Match_Foot;
         editDate.value = match.date_heure && match.date_heure !== "0000-00-00 00:00:00"
-            ? new Date(match.date_heure).toISOString().slice(0, 16)
+            ? matchDate.toISOString().slice(0, 16)
             : "";
         editAdversaire.value = match.Adversaire || "";
         editLieu.value = match.lieu || "Domicile";
         editScore.value = match.résultat || "";
 
+        // Gérer la désactivation des champs
+        editDate.disabled = matchPasse;
+        editAdversaire.disabled = matchPasse;
+        editLieu.disabled = matchPasse;
+        editScore.disabled = !matchPasse; // Résultat modifiable seulement après le match
+
+        // Afficher le pop-up
         editPopup.style.display = "flex";
     };
 
@@ -214,5 +223,72 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     closeBtn.addEventListener("click", closePopup);
 
+
+    //numero de matchs joues
+    async function fetchMatchesPlayed() {
+        try {
+            const response = await fetch(`${baseUrl}matches/played`);
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP! statut: ${response.status}`);
+            }
+            const responseData = await response.json();
+            const PointsText = document.querySelector("#NbMtc");
+
+            if (responseData.data) {
+                PointsText.innerHTML += `<strong>${responseData.data} Matchs</strong>`;
+            } else {
+                PointsText.innerHTML += `<p>0 Matchs</p>`;
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération le NbMatchs :", error);
+            document.querySelector("#NbMtc").innerHTML += `<p>Impossible de charger le NbMatchs.</p>`;
+        }
+    }
+
+    //numero de victoires
+    async function fetchVictoires() {
+        try {
+            const response = await fetch(`${baseUrl}matches/won`);
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP! statut: ${response.status}`);
+            }
+            const responseData = await response.json();
+            const PointsText = document.querySelector("#NbVic");
+
+            if (responseData.data) {
+                PointsText.innerHTML += `<strong>${responseData.data} Victoires </strong>`;
+            } else {
+                PointsText.innerHTML += `<p>0 Victoires</p>`;
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération le NbVictoires :", error);
+            document.querySelector("#NbVic").innerHTML += `<p>Impossible de charger le NbVictoires.</p>`;
+        }
+    }
+
+    //numero de jouers
+    async function fetchNbJouers() {
+        try {
+            const response = await fetch(`/R4.01/gestionequipesport-api/src/routes/player.php/api/player/player-count`);
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP! statut: ${response.status}`);
+            }
+            const responseData = await response.json();
+            const PointsText = document.querySelector("#NbJrs");
+
+            if (responseData.data) {
+                PointsText.innerHTML += `<strong>${responseData.data} Jouers</strong>`;
+            } else {
+                PointsText.innerHTML += `<p>0 Jouers</p>`;
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération de numero jouers :", error);
+            document.querySelector("#NbJrs").innerHTML += `<p>Impossible de charger le numero de jouers.</p>`;
+        }
+    }
+
     await getAllMatch();
+    await fetchMatchesPlayed();
+    await fetchVictoires();
+    await fetchNbJouers();
 });
