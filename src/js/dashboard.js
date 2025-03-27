@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const PointsText = document.querySelector("#ButsPm");
 
             if (responseData.data) {
-                PointsText.innerHTML += `<strong>${responseData.data}</strong>`;
+                PointsText.innerHTML += `<strong>${responseData.data.toFixed(1)}</strong>`;
             } else {
                 PointsText.innerHTML += `<p>0</p>`;
             }
@@ -370,7 +370,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const PointsText = document.querySelector("#MoyenneNotes");
 
             if (responseData.data) {
-                PointsText.innerHTML += `<strong>${responseData.data}</strong>`;
+                PointsText.innerHTML += `<strong>${parseFloat(responseData.data).toFixed(1)}</strong>`;
             } else {
                 PointsText.innerHTML += `0`;
             }
@@ -383,7 +383,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     /**
      * Récupère et affiche le meilleur joueur
      */
-    async function fetchBetterPlayer() {
+    async function fetchBestPlayer() {
         try {
             const response = await fetch(`${baseUrl}best-player`);
             if (!response.ok) throw new Error(`Erreur HTTP! statut: ${response.status}`);
@@ -395,7 +395,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (responseData.data) {
                 const { Nom_Joueur, moyenneNotes, Image } = responseData.data;
                 PointsText.innerHTML += `<strong>${Nom_Joueur}</strong>`;
-                MoyenneNote.innerHTML += `<strong>${moyenneNotes}</strong>`;
+                MoyenneNote.innerHTML += `<strong>${parseFloat(moyenneNotes).toFixed(1)}</strong>`;
                 PlayerImg.src = `../assets/data-player/${Image}`;
                 PlayerImg.alt = `Photo de ${Nom_Joueur}`;
             } else {
@@ -412,7 +412,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Appel aux fonctions
     await fetchLastMatches();
-    await fetchBetterPlayer();
+    await fetchBestPlayer();
     await fetchTeamAverageNote();
     await fetchTeamPerformanceNote();
     await fetchGoalsDifference();
