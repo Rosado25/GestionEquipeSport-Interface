@@ -3,7 +3,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const tableBody = document.querySelector("tbody");
     let ListeMatch = [];
 
-    //add-match
+    /**
+     * Add un match
+     */
     async function addMatch(Data) {
         try {
             console.log(Data);
@@ -43,7 +45,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    //delete-match
+    /**
+     * Delete un match
+     */
     async function deleteMatch(matchId) {
         console.log(`Suppression du match ID: ${matchId}`);
         try {
@@ -83,7 +87,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    //edit-match
+    /**
+     * Edit un match
+     */
     async function updateMatch(matchData) {
         console.log(`Mise à jour du match ID: ${matchData.Id_Match_Foot}`);
         try {
@@ -126,10 +132,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    //liste des matchs
+    /**
+     * Récupère et affiche la liste des matchs
+     */
     async function getAllMatch() {
         try {
-            console.log("Récupération de tous les matchs...");
             const response = await fetch(`${baseUrl}matches`);
             if (!response.ok) throw new Error("Erreur lors de la récupération des matchs");
 
@@ -176,7 +183,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    // Pop-up
+    /**
+     * Pop-up
+     */
     const editPopup = document.getElementById("editPopup");
     const editMatchId = document.getElementById("editMatchId");
     const editDate = document.getElementById("editDate");
@@ -224,7 +233,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     closeBtn.addEventListener("click", closePopup);
 
 
-    //numero de matchs joues
+    /**
+     * Récupère et affiche le numero de matchs joueés
+     */
     async function fetchMatchesPlayed() {
         try {
             const response = await fetch(`${baseUrl}matches/played`);
@@ -245,7 +256,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    //numero de victoires
+    /**
+     * Récupère et affiche le numero de victoires
+     */
     async function fetchVictoires() {
         try {
             const response = await fetch(`${baseUrl}matches/won`);
@@ -266,7 +279,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    //numero de jouers
+    /**
+     * Récupère et affiche le numero de jouers disponibles
+     */
     async function fetchNbJouers() {
         try {
             const response = await fetch(`/R4.01/gestionequipesport-api/src/routes/player.php/api/player/player-count`);

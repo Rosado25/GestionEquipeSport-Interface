@@ -4,9 +4,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const baseUrl = "/R4.01/gestionequipesport-api/src/routes/stats.php/api/stats/";
 
     /**
-     * Récupère les statistiques d'un match
+     * Récupère et affiche les statistiques des matchs
      */
-    async function fetchStatsMatch() {
+    async function fetchStatsMatchs() {
         try {
             const response = await fetch(`${baseUrl}match`);
             if (!response.ok) {
@@ -56,6 +56,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    /**
+    * Récupère et affiche les statistiques des jouers
+    */
     async function fetchStatsJouers() {
         try {
             const response = await fetch(`${baseUrl}player`);
@@ -115,10 +118,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-
-
-
-
-    await fetchStatsMatch();
+    // Appel aux fonctions
+    await fetchStatsMatchs();
     await fetchStatsJouers();
 });
