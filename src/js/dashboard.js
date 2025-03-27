@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchLastMatches() {
         try {
             const response = await fetch(`${baseUrl}last-matches?numMatches=5`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchNextMatch() {
         try {
             const response = await fetch(`${baseUrl}next-game`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchTeamPoints() {
         try {
             const response = await fetch(`${baseUrl}points`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchLastThreeMatches() {
         try {
             const response = await fetch(`${baseUrl}last-matches?numMatches=3`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchWinRate() {
         try {
             const response = await fetch(`${baseUrl}win-rate`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -179,7 +179,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchMatchesPlayed() {
         try {
             const response = await fetch(`${baseUrl}matches-played`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchMatchesWon() {
         try {
             const response = await fetch(`${baseUrl}count-matches-won`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -225,7 +225,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchGoalsScored() {
         try {
             const response = await fetch(`${baseUrl}goals-scored`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -248,7 +248,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchGoalsConceded() {
         try {
             const response = await fetch(`${baseUrl}goals-conceded`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -271,7 +271,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchGoalsPerGame() {
         try {
             const response = await fetch(`${baseUrl}goals-per-game`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -294,7 +294,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchCleanSheets() {
         try {
             const response = await fetch(`${baseUrl}clean-sheets`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -317,7 +317,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchGoalsDifference() {
         try {
             const response = await fetch(`${baseUrl}goals-diff`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -340,7 +340,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchTeamPerformanceNote() {
         try {
             const response = await fetch(`${baseUrl}team-performance-note`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -363,7 +363,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchTeamAverageNote() {
         try {
             const response = await fetch(`${baseUrl}team-average-note`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -411,6 +411,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Appel aux fonctions
+    await fetchLastMatches();
     await fetchBetterPlayer();
     await fetchTeamAverageNote();
     await fetchTeamPerformanceNote();
