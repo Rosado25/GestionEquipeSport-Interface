@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchLastMatches() {
         try {
             const response = await fetch(`${baseUrl}last-matches?numMatches=5`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchNextMatch() {
         try {
             const response = await fetch(`${baseUrl}next-game`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchTeamPoints() {
         try {
             const response = await fetch(`${baseUrl}points`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchLastThreeMatches() {
         try {
             const response = await fetch(`${baseUrl}last-matches?numMatches=3`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchWinRate() {
         try {
             const response = await fetch(`${baseUrl}win-rate`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -179,7 +179,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchMatchesPlayed() {
         try {
             const response = await fetch(`${baseUrl}matches-played`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchMatchesWon() {
         try {
             const response = await fetch(`${baseUrl}count-matches-won`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -225,7 +225,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchGoalsScored() {
         try {
             const response = await fetch(`${baseUrl}goals-scored`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -248,7 +248,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchGoalsConceded() {
         try {
             const response = await fetch(`${baseUrl}goals-conceded`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -271,14 +271,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchGoalsPerGame() {
         try {
             const response = await fetch(`${baseUrl}goals-per-game`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
             const PointsText = document.querySelector("#ButsPm");
 
             if (responseData.data) {
-                PointsText.innerHTML += `<strong>${responseData.data}</strong>`;
+                PointsText.innerHTML += `<strong>${responseData.data.toFixed(1)}</strong>`;
             } else {
                 PointsText.innerHTML += `<p>0</p>`;
             }
@@ -294,7 +294,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchCleanSheets() {
         try {
             const response = await fetch(`${baseUrl}clean-sheets`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -317,7 +317,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchGoalsDifference() {
         try {
             const response = await fetch(`${baseUrl}goals-diff`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -340,7 +340,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchTeamPerformanceNote() {
         try {
             const response = await fetch(`${baseUrl}team-performance-note`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
@@ -363,14 +363,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchTeamAverageNote() {
         try {
             const response = await fetch(`${baseUrl}team-average-note`);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
             const responseData = await response.json();
             const PointsText = document.querySelector("#MoyenneNotes");
 
             if (responseData.data) {
-                PointsText.innerHTML += `<strong>${responseData.data}</strong>`;
+                PointsText.innerHTML += `<strong>${parseFloat(responseData.data).toFixed(1)}</strong>`;
             } else {
                 PointsText.innerHTML += `0`;
             }
@@ -383,7 +383,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     /**
      * Récupère et affiche le meilleur joueur
      */
-    async function fetchBetterPlayer() {
+    async function fetchBestPlayer() {
         try {
             const response = await fetch(`${baseUrl}best-player`);
             if (!response.ok) throw new Error(`Erreur HTTP! statut: ${response.status}`);
@@ -395,7 +395,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (responseData.data) {
                 const { Nom_Joueur, moyenneNotes, Image } = responseData.data;
                 PointsText.innerHTML += `<strong>${Nom_Joueur}</strong>`;
-                MoyenneNote.innerHTML += `<strong>${moyenneNotes}</strong>`;
+                MoyenneNote.innerHTML += `<strong>${parseFloat(moyenneNotes).toFixed(1)}</strong>`;
                 PlayerImg.src = `../assets/data-player/${Image}`;
                 PlayerImg.alt = `Photo de ${Nom_Joueur}`;
             } else {
@@ -411,7 +411,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Appel aux fonctions
-    await fetchBetterPlayer();
+    await fetchLastMatches();
+    await fetchBestPlayer();
     await fetchTeamAverageNote();
     await fetchTeamPerformanceNote();
     await fetchGoalsDifference();
