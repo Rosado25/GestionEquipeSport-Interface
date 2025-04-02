@@ -7,7 +7,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link rel="icon" type="image/png" sizes="292x292" href=../assets/logo.png>
     <link rel="stylesheet" href="../css/match.css">
-    <script src="/view/src/js/app.js" defer></script>
     <script src=../js/match.js></script>
     <title>Gestion des Matchs</title>
 </head>
@@ -25,8 +24,6 @@
             <span class="message-text"></span>
             <div class="progress-bar"></div>
         </div>
-        <input type="hidden" id="php-message" value="<?= htmlspecialchars($message) ?>">
-        <input type="hidden" id="php-message-type" value="<?= (strpos($message, 'succès') !== false) ? 'success' : 'error' ?>">
 
         <!-- Données des matchs -->
         <section class="data-match">

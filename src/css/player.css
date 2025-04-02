@@ -229,6 +229,7 @@ header {
 /* Animation joueur card */
 
 .joueur-card {
+    opacity: 1;
     transform: translateY(20px);
     transition: opacity 0.5s ease, transform 0.5s ease;
 }

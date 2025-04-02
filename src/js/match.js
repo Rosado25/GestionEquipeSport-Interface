@@ -154,30 +154,30 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             tableBody.innerHTML = ListeMatch.map(match => `
-                <tr>
-                    <td>${match.date_heure && match.date_heure !== "0000-00-00 00:00:00"
-                    ? new Date(match.date_heure).toLocaleString("fr-FR")
-                    : "Non défini"}</td>
-                    <td>Abdel FC</td>
-                    <td>${match.Adversaire || "Non défini"}</td>
-                    <td>${match.lieu || "Non défini"}</td>
-                    <td>
-                        <span style="color: ${match.résultat ? 'limegreen' : 'gray'};">
-                            ${match.résultat || 'NA'}
-                        </span>
-                    </td>
-                    <td>
-                        <div class="actionsbtn">
-                            <button class="btn yellow-btn edit-btn" onclick="openEditPopup(${match.Id_Match_Foot})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn red-btn delete-btn" data-match-id="${match.Id_Match_Foot}">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join("");
+            <tr class="match-row" onclick="window.location.href='Match_Sheet.php?id=${match.Id_Match_Foot}'" style="cursor: pointer;">
+                <td>${match.date_heure && match.date_heure !== "0000-00-00 00:00:00"
+                        ? new Date(match.date_heure).toLocaleString("fr-FR")
+                        : "Non défini"}</td>
+                <td>Abdel FC</td>
+                <td>${match.Adversaire || "Non défini"}</td>
+                <td>${match.lieu || "Non défini"}</td>
+                <td>
+                    <span style="color: ${match.résultat ? 'limegreen' : 'gray'};">
+                        ${match.résultat || 'NA'}
+                    </span>
+                </td>
+                <td>
+                    <div class="actionsbtn">
+                        <button class="btn yellow-btn edit-btn" onclick="event.stopPropagation(); openEditPopup(${match.Id_Match_Foot})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn red-btn delete-btn" data-match-id="${match.Id_Match_Foot}" onclick="event.stopPropagation();">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+`).join("");
         } catch (error) {
             console.error("Erreur:", error);
         }

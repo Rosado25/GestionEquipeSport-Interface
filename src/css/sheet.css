@@ -1,0 +1,654 @@
+/* ============================================================
+   Font globale
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Abel&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+/* ============================================================
+   Font Titre
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
+body {
+    font-family: 'Nunito', sans-serif;
+    background: #121212;
+    color: #fff;
+    line-height: 1.6;
+}
+
+header {
+    background-color: #1e1e2f;
+    padding: 10px 20px;
+    text-align: center;
+    border-bottom: 2px solid #ffcc00;
+}
+
+/* ============================================================
+   Section Détails du Match
+   ============================================================ */
+.details-match {
+    background: linear-gradient(135deg, rgba(30, 30, 47, 0.9), rgba(50, 50, 70, 0.9));
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    margin: 20px auto;
+    max-width: 800px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.details-match:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
+}
+
+.details-match h2 {
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 28px;
+    color: #ffcc00;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 10px;
+    animation: fadeIn 1s ease-in-out;
+}
+
+.details-container p {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    flex-wrap: wrap;
+    font-size: 18px;
+    margin: 10px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    animation: fadeIn 1s ease-in-out;
+}
+
+.details-container p:last-child {
+    border-bottom: none;
+}
+
+.details-container strong {
+    color: #f0c40e;
+    font-weight: bold;
+}
+
+/* Animation d'apparition pour la section détail du match */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   Gestion du match
+   ============================================================ */
+.gestion-match {
+    max-width: 1400px;
+    margin: 30px auto;
+    box-sizing: border-box;
+    background: #1e1e2f;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), inset 0 -2px 4px rgba(255, 255, 255, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gestion-match:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), inset 0 -2px 6px rgba(255, 255, 255, 0.2);
+}
+
+.gestion-match h2 {
+    font-family: 'Ubuntu', sans-serif;
+    margin-bottom: 20px;
+    color: #ffc107;
+    font-size: 32px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    letter-spacing: 1px;
+    position: relative;
+}
+
+.equipe-gestion {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    gap: 20px;
+}
+
+/* ============================================================
+   Section de la liste des joueurs
+   ============================================================ */
+.liste-joueurs {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 600px;
+    height: 610px;
+}
+
+.liste-joueurs::-webkit-scrollbar {
+    width: 8px;
+}
+
+.liste-joueurs::-webkit-scrollbar-thumb {
+    background: #ffc107;
+    border-radius: 10px;
+}
+
+.liste-joueurs li {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #ccc;
+    cursor: grab;
+    text-align: center;
+    border-radius: 8px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.liste-joueurs li img {
+    width: 80px;
+    height: auto;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 2px solid #ffcc00;
+}
+
+.liste-joueurs li .player-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.liste-joueurs li .player-name {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.liste-joueurs li .player-position {
+    font-size: 14px;
+    color: wheat;
+}
+
+.choix-joueurs {
+    width: 100%;
+    max-width: 30%;
+    margin: 0 10px;
+    background: linear-gradient(145deg, #252535, #1c1c2b);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #ffc107;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+    font-size: 17px;
+    line-height: 1.8;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 750px;
+}
+
+.choix-joueurs h3 {
+    margin-bottom: 15px;
+    font-size: 22px;
+    color: #ffc107;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 10px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.choix-joueurs ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.choix-joueurs ul li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    transition: background 0.3s ease;
+}
+
+.choix-joueurs li:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+.choix-joueurs ul li:hover {
+    background: #ffc107;
+    color: #1e1e2f;
+    border-radius: 15px;
+    transform: scale(0.98);
+    cursor: pointer;
+    border: 1px solid black;
+}
+
+/* ============================================================
+   Section pour la composition d'équipe
+   ============================================================ */
+.compo-container {
+    width: 38%;
+    position: relative;
+    background-image: url("../assets/terrain-football.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: 1px solid rgba(255, 193, 7, 0.5);
+    border-radius: 12px;
+    margin: 0 10px;
+    height: 750px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    overflow: hidden;
+}
+
+.positions {
+    width: 85%;
+    height: 85%;
+    margin: 20px auto;
+    border-radius: 10px;
+    display: grid;
+    grid-template-rows: repeat(8, 1fr);
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+}
+
+/* Poste des positions du terrain  */
+
+#GL { grid-area: 8 / 3; } /* Gardien */
+#DG { grid-area: 6 / 1; } /* Défenseur Gauche */
+#DC { grid-area: 7 / 2; } /* Défenseur Central */
+#DC2{ grid-area: 7 / 4; } /* Défenseur Central */
+#DD { grid-area: 6 / 5; } /* Défenseur Droit */
+#MG { grid-area: 4 / 2; } /* Milieu Gauche */
+#MC { grid-area: 5 / 3; } /* Milieu Central */
+#MD { grid-area: 4 / 4; } /* Milieu Droit */
+#AG { grid-area: 2 / 1; } /* Ailier Gauche */
+#BU { grid-area: 1 / 3; } /* Attaquant */
+#AD { grid-area: 2 / 5; } /* Ailier Droit */
+
+.position {
+    text-decoration: none;
+    list-style: none;
+    background: #ffffff;
+    border: 2px solid #00bfff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    color: black;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1), inset 0 0 15px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+    max-width: 90px;
+    max-height: 80px;
+    cursor: pointer;
+    font-weight: bold;
+    position: static;
+}
+
+.position:hover {
+    background: #f0f0f0;
+    transform: scale(1.1);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.2);
+    border: 2px solid #007bff;
+}
+
+.position img {
+    width: 80%;
+    height: auto;
+    border-radius: 50%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.position:hover img {
+    transform: scale(1.1);
+}
+
+
+.position .player-info {
+    display: none;
+}
+
+/* ============================================================
+   Section des remplaçants
+   ============================================================ */
+.remplacants {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 20px 0;
+    text-align: center;
+    width: 20%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 600px;
+    height: 610px;
+}
+
+.remplacants::-webkit-scrollbar {
+    width: 8px;
+}
+
+.remplacants::-webkit-scrollbar-thumb {
+    background: #ffc107;
+    border-radius: 10px;
+}
+
+.scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+    background: #ffc107;
+    border-radius: 10px;
+}
+
+.scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 700px;
+}
+
+.remplacant {
+    padding: 15px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2));
+    border-radius: 12px;
+    border: 2px solid #ffc107;
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.remplacant img {
+    width: 50px;
+    height: auto;
+    border-radius: 50%;
+    border: 2px solid #ffc107;
+    transition: transform 0.3s ease;
+}
+
+.remplacant:hover {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.3));
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.remplacant:active {
+    background: #0056b3;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.remplacant::before {
+    display: block;
+    font-size: 24px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.remplacant span {
+    display: flex;
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+/* Info joueur */
+.remplacant .player-position {
+    display: none;
+}
+
+.remplacant .player-name {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remplacant li {
+    list-style: none;
+    text-align: center;
+}
+
+/* ============================================================
+   Bouton de configuration
+   ============================================================ */
+button {
+    padding: 12px 24px;
+    background: #007bff; /
+color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin: 20px auto;
+    display: block;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+/* ============================================================
+   Tableau des joueurs
+   ============================================================ */
+.configuration-equipe {
+    max-width: 1400px;
+    margin: 30px auto;
+    box-sizing: border-box;
+    background: #1e1e2f;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+
+.configuration-equipe h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffc107;
+    text-align: center;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+
+#tablelist {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: #2a2a3b;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+
+#tablelist thead {
+    background-color: #1e1e2f;
+    color: #fff;
+}
+
+#tablelist th {
+    padding: 12px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-bottom: 2px solid #ffcc00;
+}
+
+
+#tablelist tbody tr {
+    border-bottom: 1px solid #444;
+}
+
+#tablelist td {
+    padding: 12px;
+    text-align: center;
+    font-size: 14px;
+    color: #fff;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+
+#tablelist tr:hover {
+    background-color: #444444;
+    transform: scale(1.02);
+}
+
+
+#tablelist td input {
+    width: 80%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ffc107;
+    background-color: #333;
+    color: #fff;
+    font-size: 14px;
+    transition: all 0.3s
+}
+
+#tablelist td input:focus {
+    border-color: #ffcc00;
+    background-color: #444;
+}
+
+/* Bouton de vérification */
+#verifierEquipe {
+    padding: 12px 24px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    display: block;
+    margin: 20px auto;
+    width: 200px;
+}
+
+#verifierEquipe:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+#tablelist tbody tr.no-data td {
+    color: #999;
+    font-style: italic;
+    text-align: center;
+}
+
+/* ============================================================
+   Notification
+   ============================================================ */
+.notification {
+    color: red;
+    position: fixed;
+    top: 130px;
+    right: 10px;
+    z-index: 1000;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s, InvisibleMessage 0.5s 3.5s;
+    opacity: 0;
+}
+
+.notification.show {
+    opacity: 1;
+    transition: opacity 0.5s;
+}
+
+.success {
+    background-color: #eafaf1;
+    color: #155724;
+    border: 2px solid #c3e6cb;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 2px solid #f5c6cb;
+}
+
+.notification .icon {
+    font-size: 24px;
+}
+
+.notification.success .icon {
+    color: #28a745;
+}
+
+.notification.error .icon {
+    color: #dc3545;
+}
+
+.notification .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #b0bec5, #78909c);
+    border-radius: 0 0 5px 5px;
+    animation: progressBar 4s linear;
+}
+/* Animation de la notification  */
+@keyframes fadeIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes InvisibleMessage {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+@keyframes progressBar {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0;
+    }
+}
