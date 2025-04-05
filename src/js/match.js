@@ -1,5 +1,40 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    const baseUrl = "/R4.01/gestionequipesport-api/src/routes/match.php/api/";
+
+    // Configuration API globale
+    const API_CONFIG = {
+        baseUrl: '/R4.01/gestionequipesport-api/api/match/',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    };
+
+    /**
+     * Fonction générique pour effectuer les appels API
+     * @param {string} endpoint - Point de terminaison de l'API
+     * @returns {Promise<Object>} Données de la réponse
+     */
+    async function fetchApi(endpoint) {
+        try {
+            const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`, {
+                headers: API_CONFIG.headers
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    window.location.href = '/R4.01/gestionequipesport-interface/src/views/login.php';
+                    return;
+                }
+                throw new Error(`Erreur HTTP! statut: ${response.status}`);
+            }
+
+            const { response: { data } } = await response.json();
+            return { data };
+        } catch (error) {
+            console.error(`Erreur lors de la récupération de ${endpoint}:`, error);
+            throw error;
+        }
+    }
     const tableBody = document.querySelector("tbody");
     let ListeMatch = [];
 
@@ -12,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("Ajout d'un match...");
             const response = await fetch(`${baseUrl}match`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: API_CONFIG.headers,
                 body: JSON.stringify(Data)
             });
             console.log(JSON.stringify(Data));
@@ -53,7 +88,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const response = await fetch(`${baseUrl}match`, {
                 method: "DELETE",
-                headers: { "Content-Type": "application/json" },
+                headers: API_CONFIG.headers,
                 body: JSON.stringify({ Id_Match_Foot: matchId })
             });
             const text = await response.text();  // Récupère la réponse brute
@@ -96,7 +131,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const response = await fetch(`${baseUrl}match`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: API_CONFIG.headers,
                 body: JSON.stringify(matchData)
             });
             console.log(JSON.stringify(matchData));
@@ -137,7 +172,7 @@ document.addEventListener("DOMContentLoaded", async () => {
      */
     async function getAllMatch() {
         try {
-            const response = await fetch(`${baseUrl}matches`);
+            const response = await fetchApi('matches');
             if (!response.ok) throw new Error("Erreur lors de la récupération des matchs");
 
             const result = await response.json();
@@ -156,8 +191,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             tableBody.innerHTML = ListeMatch.map(match => `
             <tr class="match-row" onclick="window.location.href='Match_Sheet.php?id=${match.Id_Match_Foot}'" style="cursor: pointer;">
                 <td>${match.date_heure && match.date_heure !== "0000-00-00 00:00:00"
-                        ? new Date(match.date_heure).toLocaleString("fr-FR")
-                        : "Non défini"}</td>
+                    ? new Date(match.date_heure).toLocaleString("fr-FR")
+                    : "Non défini"}</td>
                 <td>Abdel FC</td>
                 <td>${match.Adversaire || "Non défini"}</td>
                 <td>${match.lieu || "Non défini"}</td>
@@ -238,7 +273,7 @@ document.addEventListener("DOMContentLoaded", async () => {
      */
     async function fetchMatchesPlayed() {
         try {
-            const response = await fetch(`${baseUrl}matches/played`);
+            const response = await fetchApi('matches/played');
             if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
@@ -261,7 +296,7 @@ document.addEventListener("DOMContentLoaded", async () => {
      */
     async function fetchVictoires() {
         try {
-            const response = await fetch(`${baseUrl}matches/won`);
+            const response = await fetchApi('matches/won');
             if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
@@ -284,7 +319,8 @@ document.addEventListener("DOMContentLoaded", async () => {
      */
     async function fetchNbJouers() {
         try {
-            const response = await fetch(`/R4.01/gestionequipesport-api/src/routes/player.php/api/player/player-count`);
+            //utilise une autre api differente que celui de base pour match.js
+            const response = await fetch(`/R4.01/gestionequipesport-api/api/player/player-count`);
             if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
