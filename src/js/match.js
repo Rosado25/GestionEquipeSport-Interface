@@ -321,10 +321,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             const responseData = await response.json();
             const PointsText = document.querySelector("#NbJrs");
 
-            if (responseData.data) {
-                PointsText.innerHTML += `<strong>${responseData.data} Jouers</strong>`;
+            if (responseData.response && responseData.response.data != null) {
+                PointsText.innerHTML += `<strong>${responseData.response.data} Jouers</strong>`;
             } else {
-                PointsText.innerHTML += `<p>0 Jouers</p>`;
+                PointsText.innerHTML += `<strong>0 Jouers</strong>`;
             }
         } catch (error) {
             console.error("Erreur lors de la récupération de numero jouers :", error);
