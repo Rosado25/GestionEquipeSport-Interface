@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Configuration API globale
     const API_CONFIG = {
-        baseUrl: '/R4.01/gestionequipesport-api/api/match/',
+        baseUrl: '/R4.01/gestionequipesport-api/api/matches/',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             console.log(Data);
             console.log("Ajout d'un match...");
-            const response = await fetch(`${baseUrl}match`, {
+            const response = await fetch(`${API_CONFIG.baseUrl}match`, {
                 method: "POST",
                 headers: API_CONFIG.headers,
                 body: JSON.stringify(Data)
@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function deleteMatch(matchId) {
         console.log(`Suppression du match ID: ${matchId}`);
         try {
-            const response = await fetch(`${baseUrl}match`, {
+            const response = await fetch(`${API_CONFIG.baseUrl}match`, {
                 method: "DELETE",
                 headers: API_CONFIG.headers,
                 body: JSON.stringify({ Id_Match_Foot: matchId })
@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log(`Mise à jour du match ID: ${matchData.Id_Match_Foot}`);
         try {
 
-            const response = await fetch(`${baseUrl}match`, {
+            const response = await fetch(`${API_CONFIG.baseUrl}match`, {
                 method: "PUT",
                 headers: API_CONFIG.headers,
                 body: JSON.stringify(matchData)
@@ -273,7 +273,7 @@ document.addEventListener("DOMContentLoaded", async () => {
      */
     async function fetchMatchesPlayed() {
         try {
-            const response = await fetchApi('matches/played');
+            const response = await fetchApi('played');
             if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
@@ -296,7 +296,7 @@ document.addEventListener("DOMContentLoaded", async () => {
      */
     async function fetchVictoires() {
         try {
-            const response = await fetchApi('matches/won');
+            const response = await fetchApi('won');
             if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
