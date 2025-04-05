@@ -43,20 +43,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('password').value;
 
         try {
-            const response = await fetch('http://localhost/R4.01/gestionequipesport-auth-api/src/routes/auth.php/api/login', {
+            const response = await fetch('/R4.01/gestionequipesport-auth-api/api/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({ email, password })
             });
-            console.log(response)
             const data = await response.json();
-            displayMessage(response.status === 200, data.message || 'Erreurs lors de votre connexion');
-            if (response.status === 200 && data.data.status === 200) {
-                console.log("connexion réussie");
-                window.location.href = 'http://localhost/R4.01/gestionequipesport-interface/src/views/dashboard.php';
+            displayMessage(response.status === 200, data.status_message || 'Erreur lors de votre connexion');
+            if (response.status === 200) {
+                // Store the token before redirecting
+                localStorage.setItem('token', data.response.data.token);
+                console.log('Token:', data.response.data.token);
+                window.location.href = '/R4.01/gestionequipesport-interface/src/views/dashboard.php';
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Login error:', error);
+            displayMessage(false, 'Erreur lors de la connexion au serveur');
         }
     }
 

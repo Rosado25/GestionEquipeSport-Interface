@@ -307,8 +307,8 @@ header {
 }
 
 .position img {
-    width: 80%;
-    height: auto;
+    max-width: 95%;
+    max-height: 95%;
     border-radius: 50%;
     object-fit: cover;
     transition: transform 0.3s ease;

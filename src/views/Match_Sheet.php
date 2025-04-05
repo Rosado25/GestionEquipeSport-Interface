@@ -80,6 +80,8 @@
                 <th>Nom du Joueur</th>
                 <th>Position</th>
                 <th>Note</th>
+                <th>Poids</th>
+                <th>Taille</th>
             </tr>
             </thead>
             <tbody>

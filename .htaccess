@@ -1,0 +1,19 @@
+RewriteEngine On
+RewriteBase /R4.01/gestionequipesport-auth-api/
+
+# Configuration CORS
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+
+# Routes
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.*)$ src/routes/auth.php [QSA,L]
+RewriteRule ^api/dashboard/?(.*)$ src/routes/dashboard.php [QSA,L]
+RewriteRule ^api/player/?(.*)$ src/routes/player.php [QSA,L]
+RewriteRule ^api/match/?(.*)$ src/routes/match.php [QSA,L]
+RewriteRule ^api/sheet-match/?(.*)$ src/routes/sheet-match.php [QSA,L]
+RewriteRule ^api/statistics/?(.*)$ src/routes/statistique.php [QSA,L]
+
+Options -Indexes
