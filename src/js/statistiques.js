@@ -1,22 +1,52 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
-    // URL de base pour les requêtes API
-    const baseUrl = "/R4.01/gestionequipesport-api/src/routes/stats.php/api/stats/";
+    // Configuration API globale
+    const API_CONFIG = {
+        baseUrl: '/R4.01/gestionequipesport-api/api/stats/',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    };
+
+    /**
+     * Fonction générique pour effectuer les appels API
+     * @param {string} endpoint - Point de terminaison de l'API
+     * @returns {Promise<Object>} Données de la réponse
+     */
+    async function fetchApi(endpoint) {
+        try {
+            const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`, {
+                headers: API_CONFIG.headers
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    window.location.href = '/R4.01/gestionequipesport-interface/src/views/login.php';
+                    return { data: null };
+                }
+                throw new Error(`Erreur HTTP! statut: ${response.status}`);
+            }
+
+            const { response: { data } } = await response.json();
+            return { data };
+        } catch (error) {
+            console.error(`Erreur lors de la récupération de ${endpoint}:`, error);
+            throw error;
+        }
+    }
 
     /**
      * Récupère et affiche les statistiques des matchs
      */
     async function fetchStatsMatchs() {
         try {
-            const response = await fetch(`${baseUrl}match`);
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP! statut: ${response.status}`);
-            }
-            const responseData = await response.json();
+            const { data } = await fetchApi('match');
+
             const cardNextMatch = document.querySelector("#matchs-stats");
 
-            if (responseData.data) {
-                const { total, won, lost, draw, wonPercentage, lostPercentage, drawPercentage } = responseData.data;
+            if (data) {
+                const { total, won, lost, draw, wonPercentage, lostPercentage, drawPercentage } = data;
                 cardNextMatch.innerHTML += `
                     <div class="statistiques-card">
                         <i class="fas fa-futbol"></i>
@@ -61,15 +91,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     */
     async function fetchStatsJouers() {
         try {
-            const response = await fetch(`${baseUrl}player`);
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP! statut: ${response.status}`);
-            }
-            const responseData = await response.json();
+            const { data } = await fetchApi('player');
+
             const cardNextMatch = document.querySelector("#player-stats");
 
-            if (responseData.data && responseData.data.length > 0) {
-                let rows = await Promise.all(responseData.data.map(async (player) => {
+            if (data && data.length > 0) {
+                let rows = await Promise.all(data.map(async (player) => {
                     // Récupérer les sélections consécutives pour chaque joueur
                     let consecutiveSelections = await fetchConsecutiveSelections(player.id);
 
@@ -100,9 +127,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Fonction pour récupérer les sélections consécutives d'un joueur
     async function fetchConsecutiveSelections(playerId) {
         try {
-            const response = await fetch(`${baseUrl}consecutive-selections`, {
+            const response = await fetch(`${API_CONFIG.baseUrl}consecutive-selections`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: API_CONFIG.headers,
                 body: JSON.stringify({ playerId: playerId })
             });
 
