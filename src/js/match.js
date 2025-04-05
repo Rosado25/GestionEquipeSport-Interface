@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (!response.ok) {
                 if (response.status === 401) {
                     window.location.href = '/R4.01/gestionequipesport-interface/src/views/login.php';
-                    return;
+                    return { data: null };
                 }
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
@@ -172,16 +172,14 @@ document.addEventListener("DOMContentLoaded", async () => {
      */
     async function getAllMatch() {
         try {
-            const response = await fetchApi('matches');
-            if (!response.ok) throw new Error("Erreur lors de la récupération des matchs");
+            const { data } = await fetchApi('matches');
 
-            const result = await response.json();
-            if (!result.data || !Array.isArray(result.data)) {
-                console.error("Format inattendu des données reçues:", result);
+            if (!data || !Array.isArray(data)) {
+                console.error("Format inattendu des données reçues:", data);
                 return;
             }
 
-            ListeMatch = result.data;
+            ListeMatch = data;
 
             if (ListeMatch.length === 0) {
                 tableBody.innerHTML = `<tr><td colspan="6">Aucun match trouvé.</td></tr>`;
@@ -273,15 +271,12 @@ document.addEventListener("DOMContentLoaded", async () => {
      */
     async function fetchMatchesPlayed() {
         try {
-            const response = await fetchApi('played');
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP! statut: ${response.status}`);
-            }
-            const responseData = await response.json();
+            const { data } = await fetchApi('played');
+
             const PointsText = document.querySelector("#NbMtc");
 
-            if (responseData.data) {
-                PointsText.innerHTML += `<strong>${responseData.data} Matchs</strong>`;
+            if (data) {
+                PointsText.innerHTML += `<strong>${data} Matchs</strong>`;
             } else {
                 PointsText.innerHTML += `<p>0 Matchs</p>`;
             }
@@ -296,15 +291,12 @@ document.addEventListener("DOMContentLoaded", async () => {
      */
     async function fetchVictoires() {
         try {
-            const response = await fetchApi('won');
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP! statut: ${response.status}`);
-            }
-            const responseData = await response.json();
+            const { data } = await fetchApi('won');
+
             const PointsText = document.querySelector("#NbVic");
 
-            if (responseData.data) {
-                PointsText.innerHTML += `<strong>${responseData.data} Victoires </strong>`;
+            if (data) {
+                PointsText.innerHTML += `<strong>${data} Victoires </strong>`;
             } else {
                 PointsText.innerHTML += `<p>0 Victoires</p>`;
             }
