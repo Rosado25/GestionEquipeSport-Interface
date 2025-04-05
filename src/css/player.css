@@ -74,84 +74,107 @@ header {
 
 /* Section d'ajout de joueur */
 .add-player-section {
-    background-color: #1e1e2f;
-    padding: 30px;
-    border-radius: 12px;
+    width: 100%;
+    background: linear-gradient(145deg, #1e1e2f, #2a2a3f);
+    padding: 40px;
+    border-radius: 15px;
     display: none;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     margin: 30px auto;
-
+    max-width: 800px;
+    border: 1px solid rgba(255, 204, 0, 0.1);
 }
+
 .add-player-section h2 {
     font-family: 'Nunito', sans-serif;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     text-align: center;
     color: #ffcc00;
-    font-size: 24px;
+    font-size: 28px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .add-player-section textarea::placeholder {
-    color: #ccc;
+    color: #999;
 }
 
+#add-player-form{
+    margin: 0 auto;
+}
 .add-player-section textarea,
 .add-player-section input,
 .add-player-section select,
 .add-player-section button {
-    width: 50%;
-    padding: 12px;
+    width: 80%;
+    padding: 15px;
     font-size: 16px;
-    border-radius: 8px;
-    border: 1px solid #bdc3c7;
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
     box-sizing: border-box;
     color: #fff;
-    background: #444;
+    background: rgba(68, 68, 68, 0.6);
     display: block;
-    margin: 15px auto;
+    margin: 20px auto;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
 }
+
 .add-player-section textarea:focus,
 .add-player-section input:focus,
-.add-player-section select:focus,
-.add-player-section button:focus {
+.add-player-section select:focus {
     outline: none;
     border-color: #ffcc00;
-    box-shadow: 0 0 5px rgba(255, 204, 0, 0.7);
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+    transform: translateY(-2px);
 }
 
 .add-player-section input[type="file"] {
-    background-color: #ecf0f1;
+    background: linear-gradient(145deg, #ecf0f1, #f5f6fa);
+    padding: 20px;
+    color: #333;
+    font-weight: 500;
 }
 
 .add-player-section button {
-    background-color: #ffcc00;
+    background: linear-gradient(145deg, #ffcc00, #ffd700);
     color: #000;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     border: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    width: 40%;
 }
 
 .add-player-section button:hover {
-    background-color: #e6b800;
+    background: linear-gradient(145deg, #ffd700, #ffcc00);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4);
 }
 
 .add-player-section select {
-    background-color: #444;
-    color: #fff;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffcc00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 15px;
 }
 
 .add-player-section select option {
-    background: rgba(0, 0, 0, 0.7);
+    background: #2a2a3f;
     color: white;
+    padding: 10px;
 }
 
 .add-player-section input[type="file"] {
-    margin: 0 auto;
+    margin: 20px auto;
     display: flex;
-    align-self: center;
     align-items: center;
     justify-content: center;
-    color: black;
+    color: #333;
+    cursor: pointer;
 }
 
 /* Section Liste de joueur */

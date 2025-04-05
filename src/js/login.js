@@ -54,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
             displayMessage(response.status === 200, data.status_message || 'Erreur lors de votre connexion');
             if (response.status === 200) {
                 // Store the token before redirecting
-                // Store the token before redirecting
                 localStorage.setItem('token', data.response.data.token);
                 console.log('Token:', data.response.data.token);
                 window.location.href = '/R4.01/gestionequipesport-interface/src/views/dashboard.php';

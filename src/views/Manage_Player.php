@@ -34,7 +34,6 @@
 
     <!-- Formulaire pour l'ajout d'un joueur  -->
     <section class="add-player-section">
-        <h2>Ajouter un joueur</h2>
         <form id="add-player-form" method="POST" enctype="multipart/form-data">
             <input type="text" name="add-name" placeholder="Nom" required>
             <input type="text" name="add-nameFirst" placeholder="Prénom" required>
@@ -75,7 +74,6 @@
             </div>
         </div>
     </section>
-    <img src="../assets/data-player" alt="">
 </main>
 
 <!-- Popup Profile du joueur  -->

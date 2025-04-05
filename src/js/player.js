@@ -1,249 +1,279 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    // Configuration initiale
-    const baseUrl = "/R4.01/gestionequipesport-api/src/routes/player.php/api/";
-    const elements = {
-        addPlayerForm: document.getElementById('add-player-form'),
-        profilePopup: document.getElementById('profilePopup'),
-        popupBody: document.getElementById('popup-body'),
-        searchForm: document.getElementById('search-form'),
-        editForm: document.getElementById('edit-form'),
-        closeButton: document.querySelector('.popup .close'),
-        playerList: document.querySelector('.joueur-cards')
-    };
+const API_CONFIG = {
+    baseUrl: '/R4.01/gestionequipesport-api/api/',
+    imagesPath: '../assets/data-player',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+};
 
-    // Configuration des notifications
-    const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true
-    });
+const elements = {
+    addPlayerForm: document.getElementById('add-player-form'),
+    profilePopup: document.getElementById('profilePopup'),
+    popupBody: document.getElementById('popup-body'),
+    searchForm: document.getElementById('search-form'),
+    editForm: document.getElementById('edit-form'),
+    closeButton: document.querySelector('.popup .close'),
+    playerList: document.querySelector('.joueur-cards')
+};
 
-    const showLoader = () => {
-        Swal.fire({
-            title: 'Chargement...',
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
+
+/**
+ * Fonction générique pour effectuer les appels API
+ * @param {string} endpoint - Point de terminaison de l'API
+ * @param {Object} options - Options de la requête (method, body, etc.)
+ * @returns {Promise<Response>} Réponse de l'API
+ */
+async function fetchApi(endpoint, options = {}) {
+    const url = `${API_CONFIG.baseUrl}${endpoint}`;
+    console.log('API Call URL:', url);
+
+    try {
+        const response = await fetch(url, {
+            headers: API_CONFIG.headers,
+            ...options
         });
-    };
 
-    const showSuccess = (message) => Toast.fire({
-        icon: 'success',
-        title: message
+        if (!response.ok) {
+            if (response.status === 401) {
+                window.location.href = '/R4.01/gestionequipesport-interface/src/views/login.php';
+                return;
+            }
+            throw new Error(`Erreur HTTP! statut: ${response.status}`);
+        }
+
+        const jsonData = await response.json();
+        return { data: jsonData.response?.data || jsonData };
+    } catch (error) {
+        console.error(`Erreur lors de la récupération de ${endpoint}:`, error);
+        throw error;
+    }
+}
+
+// Configuration des notifications
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true
+});
+
+const showLoader = () => {
+    Swal.fire({
+        title: 'Chargement...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
     });
+};
 
-    const showError = (message) => Swal.fire({
-        icon: 'error',
-        title: 'Erreur',
-        text: message
-    });
+const showSuccess = (message) => Toast.fire({
+    icon: 'success',
+    title: message
+});
 
-    // Fonctions de gestion des formulaires
-    const toggleForm = (formSelector) => {
-        const form = document.querySelector(formSelector);
-        if (form) {
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        }
-    };
+const showError = (message) => Swal.fire({
+    icon: 'error',
+    title: 'Erreur',
+    text: message
+});
 
-    const toggleAddPlayerForm = () => toggleForm('.add-player-section');
+// Fonctions CRUD
+const searchPlayers = async (event) => {
+    event.preventDefault();
+    const searchTerm = document.getElementById('search-bar').value;
 
-    const toggleEditForm = () => {
-        const editForm = document.getElementById('edit-player-form');
-        if (editForm) {
-            editForm.style.display = editForm.style.display === 'none' ? 'block' : 'none';
-        }
-    };
+    try {
+        showLoader();
+        const { data } = await fetchApi(`players/search?search=${encodeURIComponent(searchTerm)}`);
+        displayPlayers(data);
+        Swal.close();
+    } catch (error) {
+        console.error('Search error:', error); // Ajouter un log d'erreur
+        showError('Impossible de rechercher les joueurs');
+    }
+};
 
-    // Fonctions CRUD
-    const searchPlayers = async (event) => {
-        event.preventDefault();
-        const searchTerm = document.getElementById('search-bar').value;
+const addPlayer = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
 
-        try {
-            showLoader();
-            const response = await fetch(`${baseUrl}players/search?search=${encodeURIComponent(searchTerm)}`);
-            if (!response.ok) throw new Error('Erreur de recherche');
-            const responseData = await response.json();
-            displayPlayers(responseData.data);
-            Swal.close();
-        } catch (error) {
-            showError('Impossible de rechercher les joueurs');
-        }
-    };
-
-    const addPlayer = async (event) => {
-        event.preventDefault();
-        try {
-            showLoader();
-            const response = await fetch(`${baseUrl}player`, {
-                method: 'POST',
-                body: new FormData(elements.addPlayerForm)
-            });
-            const responseData = await response.json();
-            if (response.status === 201) {
-                showSuccess('Joueur ajouté avec succès');
-                toggleAddPlayerForm();
-                elements.addPlayerForm.reset();
-                await fetchAllPlayers();
-            } else {
-                throw new Error(responseData.data.message);
+    try {
+        showLoader();
+        const response = await fetch(`${API_CONFIG.baseUrl}player`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
-        } catch (error) {
-            showError(error.message || 'Erreur lors de l\'ajout du joueur');
-        }
-    };
+        });
 
-    const deletePlayer = async (playerId) => {
-        try {
-            const result = await Swal.fire({
-                title: 'Êtes-vous sûr ?',
-                text: "Cette action est irréversible !",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Oui, supprimer',
-                cancelButtonText: 'Annuler'
-            });
-
-            if (result.isConfirmed) {
-                showLoader();
-                const response = await fetch(`${baseUrl}player`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: playerId })
-                });
-
-                const responseData = await response.json();
-                if (response.ok && responseData.status === 200) {
-                    showSuccess('Joueur supprimé avec succès');
-                    elements.profilePopup.style.display = 'none';
-                    await fetchAllPlayers();
-                } else {
-                    throw new Error(responseData.data?.message);
-                }
+        if (!response.ok) {
+            if (response.status === 401) {
+                window.location.href = '/R4.01/gestionequipesport-interface/src/views/login.php';
+                return;
             }
-        } catch (error) {
-            showError(error.message || 'Erreur lors de la suppression');
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    };
 
-    const updatePlayer = async (event) => {
-        event.preventDefault();
-        try {
-            const formData = new FormData(event.target);
-            const data = Object.fromEntries(formData.entries());
+        const data = await response.json();
 
-            showLoader();
-            const response = await fetch(`${baseUrl}player`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: data.id_joueur,
-                    name: data.Nom,
-                    firstName: data.Prenom,
-                    birthdate: data.date_naissance_,
-                    height: data.Taille,
-                    weight: data.Poids,
-                    statut: data.Statut,
-                    role: data.Poste,
-                    comments: data.Notes_
-                })
-            });
-
-            const responseData = await response.json();
-            if (responseData.status === 200) {
-                showSuccess('Joueur mis à jour avec succès');
-                elements.editForm.style.display = 'none';
-                elements.profilePopup.style.display = 'none';
-                await fetchAllPlayers();
-            } else {
-                throw new Error(responseData.message);
-            }
-        } catch (error) {
-            showError(error.message || 'Erreur lors de la mise à jour');
-        }
-    };
-
-    const displayPlayers = (players) => {
-        if (!elements.playerList || !Array.isArray(players)) {
-            showError("Erreur d'affichage des joueurs");
+        showSuccess('Joueur ajouté avec succès');
+        event.target.reset();
+        document.querySelector('.add-player-section').style.display = 'none';
+        await fetchAllPlayers();
+    } catch (error) {
+        console.error('Add player error:', error);
+        if (error.message.includes('401')) {
+            window.location.href = '/R4.01/gestionequipesport-interface/src/views/login.php';
             return;
         }
+        showError('Erreur lors de l\'ajout du joueur');
+    }
+};
 
-        elements.playerList.innerHTML = players.map(player => `
-            <div class="joueur-card" data-id="${player.Id_Joueur}">
-                <img src="${player.Image ? '../assets/data-player/' + player.Image : '../assets/data-player/default.jpg'}"
-                     alt="Photo de ${player.Prenom} ${player.Nom}">
-                <p>${player.Prenom} ${player.Nom}</p>
-                <p class="nblicense">Numéro de Licence: ${player.Numéro_license}</p>
-            </div>
-        `).join('');
+const deletePlayer = async (playerId) => {
+    const result = await Swal.fire({
+        title: 'Êtes-vous sûr ?',
+        text: "Cette action est irréversible !",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Oui, supprimer',
+        cancelButtonText: 'Annuler'
+    });
 
-        elements.playerList.querySelectorAll('.joueur-card').forEach(card => {
-            card.addEventListener('click', () => openPlayerProfile(card.dataset.id));
-        });
-    };
-
-    const fetchAllPlayers = async () => {
+    if (result.isConfirmed) {
         try {
             showLoader();
-            const response = await fetch(`${baseUrl}players`);
-            if (!response.ok) throw new Error('Erreur de chargement');
-            const responseData = await response.json();
-            displayPlayers(responseData.data);
-            Swal.close();
-        } catch (error) {
-            showError('Impossible de charger les joueurs');
-        }
-    };
-
-    const openPlayerProfile = async (playerId) => {
-        try {
-            showLoader();
-            const [playerResponse, noteResponse] = await Promise.all([
-                fetch(`${baseUrl}player?id=${playerId}`),
-                fetch(`${baseUrl}player/average-note?id=${playerId}`)
-            ]);
-
-            if (!playerResponse.ok || !noteResponse.ok) {
-                throw new Error('Erreur de chargement du profil');
-            }
-
-            const [player, noteData] = await Promise.all([
-                playerResponse.json(),
-                noteResponse.json()
-            ]);
-
-            Swal.close();
-
-            // Apply modal overlay styles
-            Object.assign(elements.profilePopup.style, {
-                display: 'flex',
-                position: 'fixed',
-                top: '0',
-                left: '0',
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                justifyContent: 'center',
-                alignItems: 'center',
-                zIndex: '1000'
+            await fetchApi('player', {
+                method: 'DELETE',
+                body: JSON.stringify({ id: playerId })
             });
 
-            const age = calculateAge(player.data.date_naissance_);
-            const birthdate = new Date(player.data.date_naissance_).toLocaleDateString('fr-FR');
-            const averageNote = noteData.data || 'N/A';
+            showSuccess('Joueur supprimé avec succès');
+            document.getElementById('profilePopup').style.display = 'none';
+            await fetchAllPlayers();
+        } catch (error) {
+            showError('Erreur lors de la suppression');
+        }
+    }
+};
 
-            elements.popupBody.innerHTML = `
+const updatePlayer = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        showLoader();
+        await fetchApi('player', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                ...API_CONFIG.headers
+            },
+            body: JSON.stringify({
+                id: parseInt(data.id_joueur),
+                name: data.Nom,
+                firstName: data.Prenom,
+                birthdate: data.date_naissance_,
+                height: parseInt(data.Taille),
+                weight: parseInt(data.Poids),
+                statut: data.Statut,
+                role: data.Poste,
+                comments: data.Notes_
+            })
+        });
+
+        showSuccess('Joueur mis à jour avec succès');
+        document.getElementById('edit-player-form').style.display = 'none';
+        document.getElementById('profilePopup').style.display = 'none';
+        await fetchAllPlayers();
+    } catch (error) {
+        console.error('Update error:', error);
+        showError('Erreur lors de la mise à jour');
+    }
+};
+
+// Fonctions d'affichage
+const displayPlayers = (players) => {
+    const playerList = document.querySelector('.joueur-cards');
+    if (!playerList || !Array.isArray(players)) {
+        showError("Erreur d'affichage des joueurs");
+        return;
+    }
+
+    playerList.innerHTML = players.map(player => `
+        <div class="joueur-card" data-id="${player.Id_Joueur}">
+            <img src="${player.Image ? '../assets/data-player/' + player.Image : '../assets/data-player/default.jpg'}"
+                 alt="Photo de ${player.Prenom} ${player.Nom}">
+            <p>${player.Prenom} ${player.Nom}</p>
+            <p class="nblicense">Numéro de Licence: ${player.Numéro_license}</p>
+        </div>
+    `).join('');
+
+    playerList.querySelectorAll('.joueur-card').forEach(card => {
+        card.addEventListener('click', () => openPlayerProfile(card.dataset.id));
+    });
+};
+
+const toggleForm = (formSelector) => {
+    const form = document.querySelector(formSelector);
+    if (form) {
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+};
+
+const toggleAddPlayerForm = () => toggleForm('.add-player-section');
+const fetchAllPlayers = async () => {
+    try {
+        showLoader();
+        const { data } = await fetchApi('players'); // Changed from 'players' to 'all'
+        displayPlayers(data);
+        Swal.close();
+    } catch (error) {
+        console.error('Error fetching players:', error);
+        showError('Impossible de charger les joueurs');
+    }
+};
+// Fonctions de gestion des profils joueurs
+const openPlayerProfile = async (playerId) => {
+    try {
+        showLoader();
+        console.log('Fetching player profile for ID:', playerId);
+
+        const [playerResponse, noteResponse] = await Promise.all([
+            fetchApi(`player?id=${playerId}`),
+            fetchApi(`player/average-note?id=${playerId}`)
+        ]);
+
+        const playerData = playerResponse.data;
+        let averageNote = noteResponse.data ? parseFloat(noteResponse.data.Moyenne_Note) : null;
+        if (averageNote === null || isNaN(averageNote)) {
+            averageNote = "Non Évalué";
+        } else {
+            averageNote = averageNote.toFixed(1);
+        }
+
+        if (!playerData) {
+            throw new Error('No player data received');
+        }
+
+        // Calculate age and format birthdate
+        const birthDate = new Date(playerData.date_naissance_);
+        const age = Math.floor((new Date() - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
+        const formattedBirthDate = birthDate.toLocaleDateString('fr-FR');
+
+        // Update profile popup content
+        elements.popupBody.innerHTML = `
             <div class="profile-header">
-                <img id="player-image" src="${player.data.Image ? '../assets/data-player/' + player.data.Image : '../assets/data-player/default.jpg'}"
-                     alt="Photo de ${player.data.Prenom} ${player.data.Nom}">
+                <img id="player-image" src="${playerData.Image ? '../assets/data-player/' + playerData.Image : '../assets/data-player/default.jpg'}"
+                     alt="Photo de ${playerData.Prenom} ${playerData.Nom}">
                 <div class="profile-info">
-                    <h1 id="player-name">${player.data.Prenom} ${player.data.Nom}</h1>
-                    <p><strong>Rôle:</strong> <span id="player-role">${player.data.Poste}</span></p>
+                    <h1 id="player-name">${playerData.Prenom} ${playerData.Nom}</h1>
+                    <p><strong>Rôle:</strong> <span id="player-role">${playerData.Poste}</span></p>
                     <p><strong>Âge:</strong> <span id="player-age">${age} ans</span></p>
                 </div>
             </div>
@@ -251,151 +281,144 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <h2>Information</h2>
                 <details>
                     <summary>Voir les informations</summary>
-                    <p><strong>Numéro de Licence:</strong> <span id="player-license">${player.data.Numéro_license}</span></p>
-                    <p><strong>Date de Naissance:</strong> <span id="player-birthdate">${birthdate}</span></p>
-                    <p><strong>Taille:</strong> <span id="player-height">${player.data.Taille} cm</span></p>
-                    <p><strong>Poids:</strong> <span id="player-weight">${player.data.Poids} kg</span></p>
-                    <p><strong>Statut:</strong> <span id="player-status">${player.data.Statut}</span></p>
+                    <p><strong>Numéro de Licence:</strong> <span id="player-license">${playerData.Numéro_license}</span></p>
+                    <p><strong>Date de Naissance:</strong> <span id="player-birthdate">${formattedBirthDate}</span></p>
+                    <p><strong>Taille:</strong> <span id="player-height">${playerData.Taille} cm</span></p>
+                    <p><strong>Poids:</strong> <span id="player-weight">${playerData.Poids} kg</span></p>
+                    <p><strong>Statut:</strong> <span id="player-status">${playerData.Statut}</span></p>
                     <p><strong>Note Moyenne:</strong> <span id="player-note">${averageNote}</span></p>
                 </details>
             </div>
             <div class="bio">
                 <h2>Commentaires</h2>
-                <p id="player-comments">${player.data.Notes_ || 'Aucun commentaire'}</p>
+                <p id="player-comments">${playerData.Notes_ || 'Aucun commentaire'}</p>
             </div>
             <div class="actions">
                 <button type="button" class="btnmodifie" id="edit-player-btn">Modifier Joueur</button>
                 <button type="button" class="btnSupprimer" id="delete-player-btn">Supprimer Joueur</button>
             </div>
 
-             <form id="edit-player-form" class="edit-form" style="display: none;">
-            <input type="hidden" id="edit-id" name="id_joueur" value="${player.data.Id_Joueur}">
-            <div class="form-group">
-                <label for="edit-name">Nom:</label>
-                <input type="text" id="edit-name" name="Nom" value="${player.data.Nom}" required>
-            </div>
-            <div class="form-group">
-                <label for="edit-nameFirst">Prénom:</label>
-                <input type="text" id="edit-nameFirst" name="Prenom" value="${player.data.Prenom}" required>
-            </div>
-            <div class="form-group">
-                <label for="edit-birthdate">Date de naissance:</label>
-                <input type="date" id="edit-birthdate" name="date_naissance_" value="${player.data.date_naissance_}" required>
-            </div>
-            <div class="form-group">
-                <label for="edit-height">Taille:</label>
-                <input type="number" id="edit-height" name="Taille" value="${player.data.Taille}" required>
-            </div>
-            <div class="form-group">
-                <label for="edit-weight">Poids:</label>
-                <input type="number" id="edit-weight" name="Poids" value="${player.data.Poids}" required>
-            </div>
-            <div class="form-group">
-                <label for="edit-status">Statut:</label>
-                <select id="edit-status" name="Statut" required>
-                    <option value="Actif" ${player.data.Statut === 'Actif' ? 'selected' : ''}>Actif</option>
-                    <option value="Blessé" ${player.data.Statut === 'Blessé' ? 'selected' : ''}>Blessé</option>
-                    <option value="Suspendu" ${player.data.Statut === 'Suspendu' ? 'selected' : ''}>Suspendu</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="edit-role">Poste:</label>
-                <select id="edit-role" name="Poste" required>
-                    <option value="Gardien" ${player.data.Poste === 'Gardien' ? 'selected' : ''}>Gardien</option>
-                    <option value="Défenseur" ${player.data.Poste === 'Défenseur' ? 'selected' : ''}>Défenseur</option>
-                    <option value="Milieu" ${player.data.Poste === 'Milieu' ? 'selected' : ''}>Milieu</option>
-                    <option value="Attaquant" ${player.data.Poste === 'Attaquant' ? 'selected' : ''}>Attaquant</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="edit-comments">Commentaires:</label>
-                <textarea id="edit-comments" name="Notes_">${player.data.Notes_ || ''}</textarea>
-            </div>
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">Enregistrer</button>
-            </div>
-        </form>
+            <form id="edit-player-form" class="edit-form" style="display: none;">
+                <input type="hidden" id="edit-id" name="id_joueur" value="${playerData.Id_Joueur}">
+                <div class="form-group">
+                    <label for="edit-name">Nom:</label>
+                    <input type="text" id="edit-name" name="Nom" value="${playerData.Nom}" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-nameFirst">Prénom:</label>
+                    <input type="text" id="edit-nameFirst" name="Prenom" value="${playerData.Prenom}" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-birthdate">Date de naissance:</label>
+                    <input type="date" id="edit-birthdate" name="date_naissance_" value="${playerData.date_naissance_}" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-height">Taille:</label>
+                    <input type="number" id="edit-height" name="Taille" value="${playerData.Taille}" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-weight">Poids:</label>
+                    <input type="number" id="edit-weight" name="Poids" value="${playerData.Poids}" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-status">Statut:</label>
+                    <select id="edit-status" name="Statut" required>
+                        <option value="Actif" ${playerData.Statut === 'Actif' ? 'selected' : ''}>Actif</option>
+                        <option value="Blessé" ${playerData.Statut === 'Blessé' ? 'selected' : ''}>Blessé</option>
+                        <option value="Suspendu" ${playerData.Statut === 'Suspendu' ? 'selected' : ''}>Suspendu</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-role">Poste:</label>
+                    <select id="edit-role" name="Poste" required>
+                        <option value="Gardien" ${playerData.Poste === 'Gardien' ? 'selected' : ''}>Gardien</option>
+                        <option value="Défenseur" ${playerData.Poste === 'Défenseur' ? 'selected' : ''}>Défenseur</option>
+                        <option value="Milieu" ${playerData.Poste === 'Milieu' ? 'selected' : ''}>Milieu</option>
+                        <option value="Attaquant" ${playerData.Poste === 'Attaquant' ? 'selected' : ''}>Attaquant</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-comments">Commentaires:</label>
+                    <textarea id="edit-comments" name="Notes_">${playerData.Notes_ || ''}</textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Enregistrer</button>
+                    <button type="button" class="btn-cancel">Annuler</button>
+                </div>
+            </form>
         `;
 
-            elements.profilePopup.style.display = 'block';
-            setupProfileButtons(player.data);
+        // Show popup
+        elements.profilePopup.style.display = 'block';
 
-        } catch (error) {
-            showError('Impossible d\'afficher le profil du joueur');
-        }
-    };
+        // Setup event listeners
+        const closeBtn = document.querySelector('.popup .close');
+        const editBtn = document.getElementById('edit-player-btn');
+        const deleteBtn = document.getElementById('delete-player-btn');
+        const editForm = document.getElementById('edit-player-form');
 
-    const setupProfileButtons = (playerData) => {
-        document.getElementById('edit-player-btn')?.addEventListener('click', (event) => {
-            const editForm = document.getElementById('edit-player-form');
-            if (editForm) {
-                const rect = event.target.getBoundingClientRect();
-                editForm.style.top = `${rect.bottom + window.scrollY + 20}px`; // Adjusted to appear lower
-                editForm.style.left = `${rect.left + window.scrollX}px`;
-                editForm.style.display = 'block';
-            }
-            const closeButton = elements.profilePopup.querySelector('.close');
-            if (closeButton) {
-                closeButton.addEventListener('click', closePlayerProfile);
-            }
+        editBtn.addEventListener('click', () => {
+            editForm.style.display = 'block';
         });
 
-        document.getElementById('delete-player-btn')?.addEventListener('click', () => {
+        closeBtn.addEventListener('click', () => {
+            elements.profilePopup.style.display = 'none';
+        });
+        deleteBtn.addEventListener('click', () => {
             deletePlayer(playerData.Id_Joueur);
         });
 
-        document.getElementById('edit-player-form')?.addEventListener('submit', updatePlayer);
-
-        // Ajouter un gestionnaire pour le bouton Annuler
-        document.querySelector('#edit-player-form .btn-secondary')?.addEventListener('click', () => {
-            const editForm = document.getElementById('edit-player-form');
-            if (editForm) {
-                editForm.style.display = 'block';
-            }
+        editForm.querySelector('.btn-cancel').addEventListener('click', () => {
+            editForm.style.display = 'none';
         });
+
+        editForm.addEventListener('submit', updatePlayer);
+
+        Swal.close();
+
+    } catch (error) {
+        console.error('Profile error:', error);
+        showError('Impossible de charger le profil du joueur');
+        Swal.close();
+    }
+};
+document.addEventListener('DOMContentLoaded', async () => {
+    const elements = {
+        searchForm: document.getElementById('search-form'),
+        addPlayerForm: document.getElementById('add-player-form'),
+        addPlayerBtn: document.querySelector('#btn-add-player'),
+        closeAddBtn: document.querySelector('.close-add'),
+        addPlayerSection: document.querySelector('.add-player-section')
     };
 
-    const calculateAge = (dateOfBirth) => {
-        const birthDate = new Date(dateOfBirth);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
+    // Initialize event listeners with null checks
+    if (elements.searchForm) {
+        elements.searchForm.addEventListener('submit', searchPlayers);
+    }
 
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        return age;
-    };
+    if (elements.addPlayerForm) {
+        elements.addPlayerForm.addEventListener('submit', addPlayer);
+    }
 
-    const closePlayerProfile = () => {
-        if (elements.profilePopup) {
-            elements.profilePopup.style.display = 'none';
-            const editForm = document.getElementById('edit-player-form');
-            if (editForm) {
-                editForm.style.display = 'none';
-            }
-        }
-    };
-
-    // Initialisation des écouteurs d'événements
-    const initEventListeners = () => {
-        document.getElementById('btn-add-player')?.addEventListener('click', toggleAddPlayerForm);
-        elements.addPlayerForm?.addEventListener('submit', addPlayer);
-        elements.searchForm?.addEventListener('submit', searchPlayers);
-        document.querySelector('.edit-form .close')?.addEventListener('click', toggleEditForm);
-        elements.closeButton?.addEventListener('click', closePlayerProfile);
-        elements.profilePopup?.addEventListener('click', (e) => {
-            if (e.target === elements.profilePopup) {
-                closePlayerProfile();
-            }
+    if (elements.addPlayerBtn && elements.addPlayerSection) {
+        elements.addPlayerBtn.addEventListener('click', () => {
+            elements.addPlayerSection.style.display =
+                elements.addPlayerSection.style.display === 'none' ? 'flex' : 'none';
         });
-    };
+    }
 
-    // Initialisation de l'application
+    if (elements.closeAddBtn && elements.addPlayerSection) {
+        elements.closeAddBtn.addEventListener('click', () => {
+            elements.addPlayerSection.style.display = 'none';
+        });
+    }
+
+
     try {
-        initEventListeners();
         await fetchAllPlayers();
     } catch (error) {
-        showError('Erreur d\'initialisation de l\'application');
+        showError('Erreur lors du chargement initial');
     }
 });
+
+// ... [Suite dans la prochaine partie à cause de la limite de caractères]

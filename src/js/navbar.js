@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     const logoutLink = document.getElementById("logout-link");
-    console.log("destruction")
     if (logoutLink) {
         logoutLink.addEventListener("click", async (event) => {
             event.preventDefault();
