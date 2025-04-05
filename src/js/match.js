@@ -312,7 +312,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function fetchNbJouers() {
         try {
             //utilise une autre api differente que celui de base pour match.js
-            const response = await fetch(`/R4.01/gestionequipesport-api/api/player/player-count`);
+            const response = await fetch(`/R4.01/gestionequipesport-api/api/player/player-count`, {
+                headers: API_CONFIG.headers
+            });
             if (!response.ok) {
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);
             }
