@@ -56,17 +56,31 @@ class Login {
     async handleLogin(e) {
         e.preventDefault();
 
+        const formData = {
+            email: this.elements.email.value,
+            password: this.elements.password.value
+        };
+
         try {
-            const response = await fetch('/R4.01/gestionequipesport-auth-api/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: this.elements.email.value,
-                    password: this.elements.password.value
-                })
+            const response = await fetch("https://authentificationapi.alwaysdata.net/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: 'include',
+                body: JSON.stringify(formData)
             });
 
-            const data = await response.json();
+            // Vérifie si la réponse est correcte
+            const text = await response.text(); // Récupère la réponse sous forme de texte brut
+            console.log('Réponse brute du serveur:', text); // Affiche la réponse brute dans la console
+
+            if (!response.ok) {
+                throw new Error('Échec de la connexion');
+            }
+
+            // Si la réponse est au format JSON, parse la
+            const data = JSON.parse(text);  // Utilise JSON.parse si la réponse n'est pas déjà en JSON
 
             if (response.status === 200) {
                 localStorage.setItem('token', data.response.data.token);
@@ -81,7 +95,7 @@ class Login {
                     background: '#1e1e2f',
                     color: '#ffffff'
                 }).then(() => {
-                    window.location.href = '/R4.01/gestionequipesport-interface/src/views/dashboard.php';
+                    window.location.href = '/src/views/dashboard.php';
                 });
             } else {
                 Swal.fire({

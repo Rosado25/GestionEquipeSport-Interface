@@ -4,7 +4,7 @@ class Dashboard {
      */
     constructor() {
         this.API_CONFIG = {
-            baseUrl: '/R4.01/gestionequipesport-api/api/dashboard/',
+            baseUrl: 'https://equipesportapi.alwaysdata.net/api/dashboard/',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -51,7 +51,7 @@ class Dashboard {
 
             if (!response.ok) {
                 if (response.status === 401) {
-                    window.location.href = '/R4.01/gestionequipesport-interface/src/views/login.php';
+                    window.location.href = '/src/views/login.php';
                     return null;
                 }
                 throw new Error(`Erreur HTTP! statut: ${response.status}`);

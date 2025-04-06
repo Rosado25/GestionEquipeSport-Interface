@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
 
             try {
-                const response = await fetch("/R4.01/gestionequipesport-auth-api/api/logout", {
+                const response = await fetch("https://authentificationapi.alwaysdata.net/api/logout", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
