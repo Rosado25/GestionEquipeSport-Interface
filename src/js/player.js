@@ -76,7 +76,11 @@ const showError = (message) => Swal.fire({
     text: message
 });
 
-
+/**
+ *  permet de rechercher un joueur 
+ * @param event
+ * @returns {Promise<void>}
+ */
 const searchPlayers = async (event) => {
     event.preventDefault();
     const searchTerm = document.getElementById('search-bar').value;
@@ -133,7 +137,11 @@ const addPlayer = async (event) => {
         showError('Erreur lors de l\'ajout du joueur');
     }
 };
-
+/**
+ * Supprime un joueur
+ * @param playerId
+ * @returns {Promise<void>}
+ */
 const deletePlayer = async (playerId) => {
     try {
         const result = await Swal.fire({

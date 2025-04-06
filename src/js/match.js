@@ -1,23 +1,148 @@
-document.addEventListener("DOMContentLoaded", async () => {
+class MatchManager {
+    /**
+     * Constructeur de la classe MatchManager
+     */
+    constructor() {
+        this.API_CONFIG = {
+            baseUrl: '/R4.01/gestionequipesport-api/api/matches/',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        };
+        this.ListeMatch = [];
+        this.elements = {
+            tableBody: document.querySelector("tbody"),
+            form: document.querySelector(".form-group"),
+            editPopup: document.getElementById("editPopup"),
+            editMatchId: document.getElementById("editMatchId"),
+            editDate: document.getElementById("editDate"),
+            editAdversaire: document.getElementById("editAdversaire"),
+            editLieu: document.getElementById("editLieu"),
+            editScore: document.getElementById("editScore"),
+            closeBtn: document.querySelector(".close-btn"),
+            editMatch: document.querySelector(".edit-match")
+        };
 
-    // Configuration API globale
-    const API_CONFIG = {
-        baseUrl: '/R4.01/gestionequipesport-api/api/matches/',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-    };
+        this.Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+
+        this.init();
+    }
 
     /**
-     * Fonction générique pour effectuer les appels API
-     * @param {string} endpoint - Point de terminaison de l'API
-     * @returns {Promise<Object>} Données de la réponse
+     * Initialisation de la classe MatchManager
      */
-    async function fetchApi(endpoint) {
+    init() {
+        this.setupEventListeners();
+        this.loadInitialData();
+    }
+
+    /**
+     * Configure les écouteurs d'événements
+     */
+    setupEventListeners() {
+        this.elements.tableBody?.addEventListener("click", (event) => {
+            const row = event.target.closest(".match-row");
+            const isActionButton = event.target.closest(".actionsbtn, .edit-btn, .delete-btn");
+
+            if (row && !isActionButton) {
+                const matchId = row.dataset.matchId;
+                window.location.href = `Match_Sheet.php?id=${matchId}`;
+            }
+        });
+        this.elements.form?.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const matchData = {
+                Date: document.getElementById("date").value,
+                Adversaire: document.getElementById("adversaire").value,
+                Lieu: document.getElementById("lieu").value
+            };
+            await this.handleAddMatch(matchData);
+        });
+        /**
+         * Listener pour le bouton de suppression
+         */
+        document.addEventListener("click", async (event) => {
+            const deleteBtn = event.target.closest(".delete-btn");
+            if (deleteBtn) {
+                event.stopPropagation();
+                event.preventDefault();
+                const matchId = deleteBtn.dataset.matchId;
+                if (matchId) {
+                    await this.handleDeleteMatch(matchId);
+                }
+            }
+        });
+
+        /**
+         * Listener pour le bouton de mise à jour
+         */
+        this.elements.editMatch?.addEventListener("click", async (event) => {
+            event.preventDefault();
+            const matchData = {
+                Id_Match_Foot: this.elements.editMatchId.value,
+                date_heure: this.elements.editDate.value,
+                Adversaire: this.elements.editAdversaire.value,
+                lieu: this.elements.editLieu.value,
+                résultat: this.elements.editScore.value
+            };
+            await this.handleUpdateMatch(matchData);
+        });
+
+        this.elements.closeBtn?.addEventListener("click", () => this.closePopup());
+        window.openEditPopup = (matchId) => this.openEditPopup(matchId);
+    }
+
+    /**
+     * Charge les données initiales
+     * @returns {Promise<void>}
+     */
+    async loadInitialData() {
         try {
-            const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`, {
-                headers: API_CONFIG.headers
+            await Promise.all([
+                this.getAllMatch(),
+                this.fetchMatchesPlayed(),
+                this.fetchVictoires(),
+                this.fetchNbJouers()
+            ]);
+        } catch (error) {
+            this.showError('Erreur lors du chargement des données');
+        }
+    }
+
+    showLoader() {
+        return Swal.fire({
+            title: 'Chargement...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+    }
+
+    showSuccess(message) {
+        return this.Toast.fire({ icon: 'success', title: message });
+    }
+
+    showError(message) {
+        return Swal.fire({ icon: 'error', title: 'Erreur', text: message });
+    }
+
+    /**
+     * Récupère les données de l'API
+     * @param endpoint
+     * @param options
+     * @returns {Promise<{data: *}|{data: null}>}
+     */
+    async fetchApi(endpoint, options = {}) {
+        try {
+            const response = await fetch(`${this.API_CONFIG.baseUrl}${endpoint}`, {
+                headers: this.API_CONFIG.headers,
+                ...options
             });
 
             if (!response.ok) {
@@ -25,7 +150,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     window.location.href = '/R4.01/gestionequipesport-interface/src/views/login.php';
                     return { data: null };
                 }
-                throw new Error(`Erreur HTTP! statut: ${response.status}`);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const { response: { data } } = await response.json();
@@ -36,183 +161,154 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    const tableBody = document.querySelector("tbody");
-    // Event listener pour le match sheet;
-    tableBody.addEventListener("click", (event) => {
-        const row = event.target.closest(".match-row");
-        const isActionButton = event.target.closest(".actionsbtn, .edit-btn, .delete-btn");
-
-        if (row && !isActionButton) {
-            const matchId = row.dataset.matchId;
-            window.location.href = `Match_Sheet.php?id=${matchId}`;
-        }
-    });
-    let ListeMatch = [];
-
     /**
-     * Add un match
+     * Ajoute un match
+     * @param matchData
+     * @returns {Promise<void>}
      */
-    async function addMatch(Data) {
+    async handleAddMatch(matchData) {
         try {
-            console.log(Data);
-            console.log("Ajout d'un match...");
-            const response = await fetch(`${API_CONFIG.baseUrl}match`, {
-                method: "POST",
-                headers: API_CONFIG.headers,
-                body: JSON.stringify(Data)
-            });
-            console.log(JSON.stringify(Data));
-            const text = await response.text();  // Récupère la réponse brute
-            console.log("Réponse brute de l'API:", text);  // Affiche la réponse dans la console
-
-            return response;
-        } catch (error) {
-            console.error("Erreur lors de l'ajout du match:", error);
-        }
-    }
-
-    // Event listener pour add un match;
-    const form = document.querySelector(".form-group");
-    form.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Empêche la soumission classique
-
-        const matchData = {
-            Date: document.getElementById("date").value,
-            Adversaire: document.getElementById("adversaire").value,
-            Lieu: document.getElementById("lieu").value
-        };
-
-        const response = await addMatch(matchData);
-        if (response && response.ok) {
-            alert("Match ajouté avec succès !");
-            getAllMatch(); // Rafraîchir la liste des matchs
-            form.reset(); // Réinitialiser le formulaire
-        } else {
-            alert("Erreur lors de l'ajout du match.");
-        }
-    });
-
-    /**
-     * Delete un match
-     */
-    async function deleteMatch(matchId) {
-        console.log(`Suppression du match ID: ${matchId}`);
-        try {
-            const response = await fetch(`${API_CONFIG.baseUrl}match`, {
-                method: "DELETE",
-                headers: API_CONFIG.headers,
-                body: JSON.stringify({ Id_Match_Foot: matchId })
-            });
-            const text = await response.text();  // Récupère la réponse brute
-            console.log("Réponse brute de l'API:", text);  // Affiche la réponse dans la console
-
-            const result = JSON.parse(text);
-            console.log(result);
-            console.log(result.response.status);
-            if (result.response.status == 200) {
-                alert("Match supprimé avec succès !");
-                getAllMatch(); // Recharge la liste après suppression
-            } else {
-                alert("Échec de la suppression!");
-                console.error("Échec de la suppression :", result);
-            }
-        } catch (error) {
-            console.error("Erreur lors de la suppression du match:", error);
-        }
-    }
-
-    // Event listener pour suprimmer un match;
-    document.addEventListener("click", async (event) => {
-        const deleteBtn = event.target.closest(".delete-btn");
-        if (deleteBtn) {
-            event.stopPropagation(); // Empêche le déclenchement du clic sur la ligne
-            event.preventDefault(); // Empêche les comportements par défaut (optionnel)
-
-            console.log("Bouton delete cliqué");
-            const matchId = deleteBtn.dataset.matchId;
-
-            if (!matchId) {
-                console.error("ID de match non trouvé !");
-                return;
-            }
-
-            const confirmDelete = confirm("Êtes-vous sûr de vouloir supprimer ce match ?");
-            if (confirmDelete) {
-                await deleteMatch(matchId);
-            }
-        }
-    });
-
-    /**
-     * Edit un match
-     */
-    async function updateMatch(matchData) {
-        console.log(`Mise à jour du match ID: ${matchData.Id_Match_Foot}`);
-        try {
-
-            const response = await fetch(`${API_CONFIG.baseUrl}match`, {
-                method: "PUT",
-                headers: API_CONFIG.headers,
+            this.showLoader();
+            const response = await this.fetchApi('match', {
+                method: 'POST',
                 body: JSON.stringify(matchData)
             });
-            console.log(JSON.stringify(matchData));
-            const text = await response.text();  // Récupère la réponse brute
-            console.log("Réponse brute de l'API:", text);  // Affiche la réponse dans la console
-            console.log(matchData)
-            console.log(response);
-            return response;
+
+            if (response) {
+                this.showSuccess('Match ajouté avec succès !');
+                await this.getAllMatch();
+                this.elements.form.reset();
+            } else {
+                this.showError('Erreur lors de l\'ajout du match');
+            }
         } catch (error) {
-            console.error("Erreur lors de la mise à jour du match:", error);
+            this.showError('Erreur lors de l\'ajout du match');
         }
     }
 
-    // Event listener pour editer un match;
-    const editMatch = document.querySelector(".edit-match");
-    editMatch.addEventListener("click", async (event) => {
-        event.preventDefault();
-
-        const matchData = {
-            Id_Match_Foot: editMatchId.value,
-            date_heure: editDate.value,
-            Adversaire: editAdversaire.value,
-            lieu: editLieu.value,
-            résultat: editScore.value
-        };
-
-        const response = await updateMatch(matchData);
-        if (response && response.ok) {
-            alert("Match mis à jour avec succès !");
-            closePopup();
-            getAllMatch(); // Rafraîchir la liste des matchs
-        } else {
-            alert("Erreur lors de la mise à jour du match.");
+    /**
+     * Supprime un match
+     * @param matchId
+     * @returns {Promise<void>}
+     */
+    async handleDeleteMatch(matchId) {
+        const match = this.ListeMatch.find(m => m.Id_Match_Foot === parseInt(matchId));
+        if (!match) {
+            this.showError('Match non trouvé');
+            return;
         }
-    });
+
+        const matchDate = new Date(match.date_heure);
+        const now = new Date();
+
+        if (matchDate < now || match.résultat) {
+            this.showError('Impossible de supprimer un match passé ou déjà joué');
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: 'Êtes-vous sûr ?',
+            text: "Cette action est irréversible !",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, supprimer',
+            cancelButtonText: 'Annuler'
+        });
+
+        if (result.isConfirmed) {
+            await this.deleteMatch(matchId);
+        }
+    }
 
     /**
-     * Récupère et affiche la liste des matchs
+     * Supprime un match
+     * @param matchId
+     * @returns {Promise<void>}
      */
-    async function getAllMatch() {
+    async deleteMatch(matchId) {
         try {
-            const { data } = await fetchApi('matches');
+            this.showLoader();
+            const response = await this.fetchApi('match', {
+                method: 'DELETE',
+                body: JSON.stringify({ Id_Match_Foot: matchId })
+            });
 
-            if (!data || !Array.isArray(data)) {
-                console.error("Format inattendu des données reçues:", data);
-                return;
+            if (response) {
+                this.showSuccess('Match supprimé avec succès !');
+                await this.getAllMatch();
+            } else {
+                this.showError('Échec de la suppression');
             }
+        } catch (error) {
+            this.showError('Erreur lors de la suppression du match');
+        }
+    }
 
-            ListeMatch = data;
+    /**
+     * Met à jour un match
+     * @param matchData
+     * @returns {Promise<void>}
+     */
+    async handleUpdateMatch(matchData) {
+        try {
+            const response = await this.fetchApi('match', {
+                method: 'PUT',
+                body: JSON.stringify(matchData)
+            });
 
-            if (ListeMatch.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="6">Aucun match trouvé.</td></tr>`;
-                return;
+            if (response) {
+                this.showSuccess('Match mis à jour avec succès !');
+                this.closePopup();
+                await this.getAllMatch();
+            } else {
+                this.showError('Erreur lors de la mise à jour du match');
             }
+        } catch (error) {
+            this.showError('Erreur lors de la mise à jour du match');
+        }
+    }
 
-            tableBody.innerHTML = ListeMatch.map(match => `
-           <tr class="match-row" data-match-id="${match.Id_Match_Foot}" style="cursor: pointer;">
+    /**
+     * Récupère tous les matchs
+     * @returns {Promise<void>}
+     */
+    async getAllMatch() {
+        try {
+            const { data } = await this.fetchApi('matches');
+            this.ListeMatch = data || [];
+            this.renderMatchList();
+        } catch (error) {
+            this.showError('Erreur lors du chargement des matchs');
+        }
+    }
+
+    /**
+     * Rend la liste des matchs dans le tableau
+     */
+    renderMatchList() {
+        if (!this.elements.tableBody) return;
+
+        if (this.ListeMatch.length === 0) {
+            this.elements.tableBody.innerHTML = `<tr><td colspan="6">Aucun match trouvé.</td></tr>`;
+            return;
+        }
+
+        this.elements.tableBody.innerHTML = this.ListeMatch.map(match => this.createMatchRow(match)).join("");
+    }
+
+    /**
+     * Crée une ligne de match pour le tableau
+     * @param match
+     * @returns {string}
+     */
+    createMatchRow(match) {
+        return `
+            <tr class="match-row" data-match-id="${match.Id_Match_Foot}" style="cursor: pointer;">
                 <td>${match.date_heure && match.date_heure !== "0000-00-00 00:00:00"
-                    ? new Date(match.date_heure).toLocaleString("fr-FR")
-                    : "Non défini"}</td>
+            ? new Date(match.date_heure).toLocaleString("fr-FR")
+            : "Non défini"}</td>
                 <td>Abdel FC</td>
                 <td>${match.Adversaire || "Non défini"}</td>
                 <td>${match.lieu || "Non défini"}</td>
@@ -232,131 +328,99 @@ document.addEventListener("DOMContentLoaded", async () => {
                     </div>
                 </td>
             </tr>
-`).join("");
-        } catch (error) {
-            console.error("Erreur:", error);
-        }
+        `;
     }
 
     /**
-     * Pop-up
+     * Ouvre la popup d'édition
+     * @param matchId
      */
-    const editPopup = document.getElementById("editPopup");
-    const editMatchId = document.getElementById("editMatchId");
-    const editDate = document.getElementById("editDate");
-    const editAdversaire = document.getElementById("editAdversaire");
-    const editLieu = document.getElementById("editLieu");
-    const editScore = document.getElementById("editScore");
-    const closeBtn = document.querySelector(".close-btn");
-
-    window.openEditPopup = function (matchId) {
-        console.log("Match sélectionné:", matchId);
-        const match = ListeMatch.find(m => m.Id_Match_Foot === matchId);
+    openEditPopup(matchId) {
+        const match = this.ListeMatch.find(m => m.Id_Match_Foot === matchId);
         if (!match) {
             console.error("Match non trouvé !");
             return;
         }
 
-        // Convertir la date du match
         const now = new Date();
         const matchDate = new Date(match.date_heure);
-        const matchPasse = matchDate < now; // True si le match est passé
+        const matchPasse = matchDate > now;
 
-        // Remplir les champs
-        editMatchId.value = match.Id_Match_Foot;
-        editDate.value = match.date_heure && match.date_heure !== "0000-00-00 00:00:00"
+        this.elements.editMatchId.value = match.Id_Match_Foot;
+        this.elements.editDate.value = match.date_heure && match.date_heure !== "0000-00-00 00:00:00"
             ? matchDate.toISOString().slice(0, 16)
             : "";
-        editAdversaire.value = match.Adversaire || "";
-        editLieu.value = match.lieu || "Domicile";
-        editScore.value = match.résultat || "";
+        this.elements.editAdversaire.value = match.Adversaire || "";
+        this.elements.editLieu.value = match.lieu || "Domicile";
+        this.elements.editScore.value = match.résultat || "";
 
-        // Gérer la désactivation des champs
-        editDate.disabled = matchPasse;
-        editAdversaire.disabled = matchPasse;
-        editLieu.disabled = matchPasse;
-        editScore.disabled = !matchPasse; // Résultat modifiable seulement après le match
+        this.elements.editDate.disabled = matchPasse;
+        this.elements.editAdversaire.disabled = matchPasse;
+        this.elements.editLieu.disabled = matchPasse;
+        this.elements.editScore.disabled = !matchPasse;
 
-        // Afficher le pop-up
-        editPopup.style.display = "flex";
-    };
-
-    function closePopup() {
-        editPopup.style.display = "none";
+        this.elements.editPopup.style.display = "flex";
     }
 
-    closeBtn.addEventListener("click", closePopup);
-
+    closePopup() {
+        this.elements.editPopup.style.display = "none";
+    }
 
     /**
-     * Récupère et affiche le numero de matchs joueés
+     * Récupère le nombre de matchs joués
+     * @returns {Promise<void>}
      */
-    async function fetchMatchesPlayed() {
+    async fetchMatchesPlayed() {
         try {
-            const { data } = await fetchApi('played');
-
-            const PointsText = document.querySelector("#NbMtc");
-
-            if (data) {
-                PointsText.innerHTML += `<strong>${data} Matchs</strong>`;
-            } else {
-                PointsText.innerHTML += `<p>0 Matchs</p>`;
+            const { data } = await this.fetchApi('played');
+            const element = document.querySelector("#NbMtc");
+            if (element) {
+                element.innerHTML += `<strong>${data || 0} Matchs</strong>`;
             }
         } catch (error) {
-            console.error("Erreur lors de la récupération le NbMatchs :", error);
-            document.querySelector("#NbMtc").innerHTML += `<p>Impossible de charger le NbMatchs.</p>`;
+            console.error("Erreur lors de la récupération des matchs joués:", error);
         }
     }
 
     /**
-     * Récupère et affiche le numero de victoires
+     * Récupère le nombre de victoires
+     * @returns {Promise<void>}
      */
-    async function fetchVictoires() {
+    async fetchVictoires() {
         try {
-            const { data } = await fetchApi('won');
-
-            const PointsText = document.querySelector("#NbVic");
-
-            if (data) {
-                PointsText.innerHTML += `<strong>${data} Victoires </strong>`;
-            } else {
-                PointsText.innerHTML += `<p>0 Victoires</p>`;
+            const { data } = await this.fetchApi('won');
+            const element = document.querySelector("#NbVic");
+            if (element) {
+                element.innerHTML += `<strong>${data || 0} Victoires</strong>`;
             }
         } catch (error) {
-            console.error("Erreur lors de la récupération le NbVictoires :", error);
-            document.querySelector("#NbVic").innerHTML += `<p>Impossible de charger le NbVictoires.</p>`;
+            console.error("Erreur lors de la récupération des victoires:", error);
         }
     }
 
     /**
-     * Récupère et affiche le numero de jouers disponibles
+     * Récupère le nombre de joueurs
+     * @returns {Promise<void>}
      */
-    async function fetchNbJouers() {
+    async fetchNbJouers() {
         try {
-            //utilise une autre api differente que celui de base pour match.js
-            const response = await fetch(`/R4.01/gestionequipesport-api/api/player/player-count`, {
-                headers: API_CONFIG.headers
+            const response = await fetch('/R4.01/gestionequipesport-api/api/player/player-count', {
+                headers: this.API_CONFIG.headers
             });
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP! statut: ${response.status}`);
-            }
-            const responseData = await response.json();
-            const PointsText = document.querySelector("#NbJrs");
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-            if (responseData.response && responseData.response.data != null) {
-                PointsText.innerHTML += `<strong>${responseData.response.data} Jouers</strong>`;
-            } else {
-                PointsText.innerHTML += `<strong>0 Jouers</strong>`;
+            const responseData = await response.json();
+            const element = document.querySelector("#NbJrs");
+            if (element) {
+                element.innerHTML += `<strong>${responseData.response?.data || 0} Joueurs</strong>`;
             }
         } catch (error) {
-            console.error("Erreur lors de la récupération de numero jouers :", error);
-            document.querySelector("#NbJrs").innerHTML += `<p>Impossible de charger le numero de jouers.</p>`;
+            console.error("Erreur lors de la récupération du nombre de joueurs:", error);
         }
     }
+}
 
-    // Appel aux fonctions
-    await getAllMatch();
-    await fetchMatchesPlayed();
-    await fetchVictoires();
-    await fetchNbJouers();
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+    new MatchManager();
 });

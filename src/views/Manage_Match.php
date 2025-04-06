@@ -7,6 +7,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link rel="icon" type="image/png" sizes="292x292" href=../assets/logo.png>
     <link rel="stylesheet" href="../css/match.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src=../js/match.js></script>
     <title>Gestion des Matchs</title>
 </head>
