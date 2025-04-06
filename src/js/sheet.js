@@ -1,9 +1,42 @@
-// URL de base pour les requêtes API
-const baseUrl = "/R4.01/gestionequipesport-api/src/routes/sheet.php/api/";
+const API_CONFIG = {
+    baseUrl: '/R4.01/gestionequipesport-api/api/sheet/',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+};
 
 // État global
 let isMatchPassed = false; // Indique si le match est déjà passé
 const originalTexts = {}; // Stocke les textes originaux des positions
+
+async function fetchApi(endpoint, method = 'GET', body = null) {
+    try {
+        const options = {
+            method,
+            headers: API_CONFIG.headers
+        };
+        if (body) {
+            options.body = JSON.stringify(body);
+        }
+
+        const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`, options);
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                window.location.href = '/R4.01/gestionequipesport-interface/src/views/login.php';
+                return;
+            }
+            throw new Error(`Erreur HTTP! statut: ${response.status}`);
+        }
+
+        const { response: { data } } = await response.json();
+        return { data };
+    } catch (error) {
+        console.error(`Erreur lors de la récupération de ${endpoint}:`, error);
+        throw error;
+    }
+}
 
 // Configuration des notifications
 const showNotification = (type, message) => Swal.mixin({
@@ -23,17 +56,9 @@ const showSuccess = (message) => showNotification('success', message);
 // Fonctions de récupération des données
 const fetchMatchDetails = async (matchId) => {
     try {
-        const response = await fetch(`${baseUrl}detail?id=${matchId}`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-        const data = await response.json();
-        if (data.status === 200) {
-            const match = data.data;
-            updateMatchDisplay(match);
+        const { data } = await fetchApi(`detail?id=${matchId}`);
+        if (data) {
+            updateMatchDisplay(data);
             isMatchPassed = await checkIfMatchPassed(matchId);
             handleMatchPassedState();
         }
@@ -42,35 +67,34 @@ const fetchMatchDetails = async (matchId) => {
         showError('Erreur lors de la récupération des détails du match');
     }
 };
-// Fonction auxiliaire pour vérifier si le match est passé
+
 const checkIfMatchPassed = async (matchId) => {
     try {
-        const response = await fetch(`${baseUrl}is-passed?id=${matchId}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
-
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-        const data = await response.json();
-        console.log('Match passed response:', data); // Pour debug
-        return data.status === 200 ? data.data : false;
+        const { data } = await fetchApi(`is-passed?id=${matchId}`);
+        return data;
     } catch (error) {
         console.error("Check match passed error:", error);
         return false;
     }
 };
 
-const fetchNonInjuredPlayers = async () => {
+const fetchCurrentTeamPlayers = async (matchId) => {
     try {
-        const response = await fetch(`${baseUrl}non-injured-players`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const { data } = await fetchApi(`team-composition?id=${matchId}`);
+        return data.map(player => player.Prenom + ' ' + player.Nom);
+    } catch (error) {
+        console.error("Fetch current team players error:", error);
+        return [];
+    }
+};
 
-        const data = await response.json();
-        if (data.status === 200) {
-            updatePlayerList(data.data);
+const fetchNonInjuredPlayers = async (matchId) => {
+    try {
+        const currentTeamPlayers = await fetchCurrentTeamPlayers(matchId);
+        const { data } = await fetchApi('non-injured-players');
+        if (data) {
+            const availablePlayers = data.filter(player => !currentTeamPlayers.includes(player.Prenom + ' ' + player.Nom));
+            updatePlayerList(availablePlayers);
             initDragAndDrop();
         }
     } catch (error) {
@@ -83,7 +107,7 @@ const fetchNonInjuredPlayers = async () => {
 const updateMatchDisplay = (match) => {
     document.querySelector('.match-date').textContent = new Date(match.date_heure).toLocaleString();
     document.querySelector('.match-opponent').textContent = match.Adversaire;
-    document.querySelector('.match-location').textContent = match.lieu;
+    document.querySelector('.match-location').textContent = match.lieu ? 'Domicile' : 'Extérieur';
     document.querySelector('.match-score').textContent = match.résultat || 'Non joué';
 };
 
@@ -127,32 +151,30 @@ const handleMatchPassedState = () => {
     }
 };
 
+// Enregistrement de l'équipe
 const saveTeam = async () => {
-    if (isMatchPassed) {
-        showError('Impossible de modifier l\'équipe : le match est déjà passé');
-        return;
-    }
-
+    const matchId = document.querySelector('input[name="idMatch"]').value;
     const players = [];
     const positions = [];
     const notes = [];
 
-    document.querySelectorAll('.position img, .sub img').forEach(img => {
-        if (img) {
-            players.push(img.dataset.name);
-            positions.push(img.parentElement.id);
-            const noteInput = document.querySelector(`input[name="noteslist[]"][data-player="${img.dataset.name}"]`);
-            notes.push(noteInput ? noteInput.value : '');
+    document.querySelectorAll('.position, .sub').forEach(position => {
+        const player = position.querySelector('img');
+        if (player) {
+            players.push(player.dataset.name);
+            positions.push(position.id);
+            const noteInput = document.querySelector(`input[data-player="${player.dataset.name}"]`);
+            const note = noteInput ? noteInput.value : 'N/A';
+            notes.push(note || 'N/A');
         }
     });
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const matchId = urlParams.get('id');
+    console.log('Saving team with the following data:', { matchId, players, positions, notes });
 
     try {
-        const response = await fetch(`${baseUrl}register-team`, {
+        const response = await fetch(`${API_CONFIG.baseUrl}register-team`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: API_CONFIG.headers,
             body: JSON.stringify({
                 idMatch: matchId,
                 playerslist: players,
@@ -161,38 +183,85 @@ const saveTeam = async () => {
             })
         });
 
-        const data = await response.json();
-        if (data.status === 201) {
-            showSuccess('Équipe enregistrée avec succès');
-        } else {
-            throw new Error(data.data || 'Erreur lors de l\'enregistrement');
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
         }
+
+        const result = await response.json();
+        showSuccess(result.response.message);
     } catch (error) {
-        console.error("Save team error:", error);
+        console.error('Erreur lors de l\'enregistrement:', error);
         showError('Erreur lors de l\'enregistrement de l\'équipe');
     }
 };
 
+document.getElementById('validerEquipe').addEventListener('click', saveTeam);
+
+document.getElementById('validerEquipe').addEventListener('click', saveTeam);
+
 // Gestion du tableau d'équipe
-const refreshTeamTable = (players, positions) => {
+const refreshTeamTable = async (players, positions) => {
     const tableBody = document.querySelector('#tablelist tbody');
     if (!tableBody) return;
 
+    const matchId = document.querySelector('input[name="idMatch"]').value;
+    const { data: teamComposition } = await fetchApi(`team-composition?id=${matchId}`);
+
     tableBody.innerHTML = players.map((player, index) => {
-        const playerElement = document.querySelector(`.position img[data-name="${player}"], .sub img[data-name="${player}"]`);
-        const playerData = JSON.parse(playerElement.parentElement.dataset.lastDrop || '{"weight": "N/A", "height": "N/A"}');
+        const playerData = teamComposition.find(p => `${p.Prenom} ${p.Nom}` === player) || {};
+        const note = playerData.Note || '';
 
         return `
             <tr>
                 <td>${player}</td>
                 <td>${positions[index]}</td>
-                <td><input type="number" min="0" max="10" name="noteslist[]" data-player="${player}" placeholder="Note /10"></td>
-                <td>${playerData.weight}</td>
-                <td>${playerData.height}</td>
+                <td><input type="number" min="0" max="10" name="noteslist[]" data-player="${player}" value="${note}" placeholder="Note /10" /></td>
+                <td>${playerData.Poids || 'N/A'}</td>
+                <td>${playerData.Taille || 'N/A'}</td>
             </tr>
         `;
     }).join('');
 };
+
+const updatePlayerNotes = async () => {
+    const matchId = document.querySelector('input[name="idMatch"]').value;
+    const notes = [];
+    const players = [];
+    const initialNotes = [];
+
+    document.querySelectorAll('input[name="noteslist[]"]').forEach(input => {
+        players.push(input.dataset.player);
+        notes.push(input.value);
+        initialNotes.push(input.placeholder);
+    });
+
+    try {
+        const response = await fetch(`${API_CONFIG.baseUrl}update-player-note`, {
+            method: 'PUT',
+            headers: API_CONFIG.headers,
+            body: JSON.stringify({
+                idMatch: matchId,
+                idJoueurs: players,
+                notes: notes,
+                initialNotes: initialNotes
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        const result = await response.json();
+        showSuccess(result.response.message);
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour des notes:', error);
+        showError('Erreur lors de la mise à jour des notes des joueurs');
+    }
+};
+
+document.getElementById('validerEquipe').addEventListener('click', updatePlayerNotes);
 
 const updateTeamTable = () => {
     const players = [];
@@ -379,6 +448,7 @@ const initEventListeners = (elements, matchId) => {
 
     elements.validerEquipeButton.addEventListener('click', saveTeam);
 };
+
 // Point d'entrée principal
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -388,10 +458,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!matchId) throw new Error('ID du match non trouvé');
         console.log("Initialisation de la feuille de match");
 
+        document.querySelector('input[name="idMatch"]').value = matchId;
+
         await Promise.all([
             fetchMatchDetails(matchId),
-            fetchNonInjuredPlayers(),
-            loadTeamComposition(matchId) // Ajout de l'appel à loadTeamComposition
+            fetchNonInjuredPlayers(matchId),
+            loadTeamComposition(matchId)
         ]);
 
         const elements = {
@@ -407,19 +479,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Fonction de chargement de la composition d'équipe (déplacée en dehors du DOMContentLoaded)
+// Fonction de chargement de la composition d'équipe
 const loadTeamComposition = async (matchId) => {
     try {
-        const response = await fetch(`${baseUrl}team-composition?id=${matchId}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-        const data = await response.json();
-        if (data.status === 200 && data.data) {
-            data.data.forEach(player => {
+        const { data } = await fetchApi(`team-composition?id=${matchId}`);
+        if (data) {
+            data.forEach(player => {
                 const target = document.getElementById(player.Poste_Joueur);
                 if (!target) return;
 
-                // Créer l'image du joueur
                 const img = document.createElement('img');
                 img.src = `../assets/data-player/${player.Image || 'default.jpg'}`;
                 img.alt = `${player.Prenom} ${player.Nom}`;
@@ -429,28 +497,23 @@ const loadTeamComposition = async (matchId) => {
                 img.dataset.weight = player.Poids;
                 img.draggable = true;
 
-                // Ajouter les événements de drag
                 img.addEventListener('dragstart', handleDragStart);
                 img.addEventListener('dragend', handleDragEnd);
 
-                // Sauvegarder les données pour le tableau
                 target.dataset.lastDrop = JSON.stringify({
                     weight: player.Poids,
                     height: player.Taille
                 });
 
-                // Placer le joueur sur le terrain
                 target.innerHTML = '';
                 target.appendChild(img);
 
-                // Cacher le joueur de la liste des disponibles
                 const listItem = document.querySelector(`#player-${player.Id_Joueur}`);
                 if (listItem) {
                     listItem.style.display = 'none';
                 }
             });
 
-            // Mettre à jour le tableau
             updateTeamTable();
         }
     } catch (error) {

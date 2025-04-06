@@ -1,69 +1,115 @@
-
-console.log("coucou")
-document.addEventListener('DOMContentLoaded', () => {
-    const rightSection = document.querySelector('.login-right');
-    const leftSection = document.querySelector('.login-left');
-    if (rightSection && leftSection) {
-        window.addEventListener("load", () => {
-            rightSection.classList.add('RightSlide');
-            leftSection.classList.add('LeftSlide');
-        });
-    }
+class Login {
     /**
-     * Fonction permettant d'afficher le mot de passe ou le cacher avec l'icon
+     * Contructeur de la classe Login
      */
-    function togglePasswordVisibility() {
-        const passwordInput = document.getElementById('password');
-        const Icon = document.querySelector('.hidden-password i');
+    constructor() {
+        this.initElements();
+        this.initEventListeners();
+    }
 
-        if (Icon && passwordInput) {
-            Icon.addEventListener('click', () => {
-                const isPassword = passwordInput.type === 'password';
-                passwordInput.type = isPassword ? 'text' : 'password';
-                Icon.classList.toggle('fa-eye', isPassword);
-                Icon.classList.toggle('fa-eye-slash', !isPassword);
-            });
+    /**
+     * Initialise les éléments du DOM
+     */
+    initElements() {
+        this.elements = {
+            form: document.getElementById('loginForm'),
+            email: document.getElementById('email'),
+            password: document.getElementById('password'),
+            toggleBtn: document.querySelector('.toggle-password')
+        };
+    }
+
+    /**
+     * Initialise les écouteurs d'événements
+     */
+    initEventListeners() {
+        if (this.elements.form) {
+            this.elements.form.addEventListener('submit', (e) => this.handleLogin(e));
+        }
+
+        if (this.elements.toggleBtn) {
+            this.elements.toggleBtn.addEventListener('click', () => this.togglePasswordVisibility());
         }
     }
 
     /**
-     * Fonction permettant de mettre en place un message du succès /Erreur
-     * @param isSuccess
-     * @param message
+     * Change la visibilité du mot de passe
      */
-    function displayMessage(isSuccess, message) {
-        const messageDiv = document.getElementById('message');
-        messageDiv.textContent = message;
-        messageDiv.style.color = isSuccess ? 'green' : 'red';
+    togglePasswordVisibility() {
+        const passwordInput = this.elements.password;
+        const icon = this.elements.toggleBtn.querySelector('i');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
     }
-    console.log("coucou")
-    async function ManageLoginForm(e) {
+
+    /**
+     * Gère la soumission du formulaire de connexion
+     * @param e
+     * @returns {Promise<void>}
+     */
+    async handleLogin(e) {
         e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
 
         try {
             const response = await fetch('/R4.01/gestionequipesport-auth-api/api/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: this.elements.email.value,
+                    password: this.elements.password.value
+                })
             });
+
             const data = await response.json();
-            displayMessage(response.status === 200, data.status_message || 'Erreur lors de votre connexion');
+
             if (response.status === 200) {
-                // Store the token before redirecting
                 localStorage.setItem('token', data.response.data.token);
                 console.log('Token:', data.response.data.token);
-                window.location.href = '/R4.01/gestionequipesport-interface/src/views/dashboard.php';
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Connexion réussie',
+                    text: 'Redirection...',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    background: '#1e1e2f',
+                    color: '#ffffff'
+                }).then(() => {
+                    window.location.href = '/R4.01/gestionequipesport-interface/src/views/dashboard.php';
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: data.status_message || 'Identifiants incorrects',
+                    background: '#1e1e2f',
+                    color: '#ffffff',
+                    confirmButtonColor: '#2ec4b6'
+                });
             }
         } catch (error) {
             console.error('Login error:', error);
-            displayMessage(false, 'Erreur lors de la connexion au serveur');
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                text: 'Erreur de connexion au serveur',
+                background: '#1e1e2f',
+                color: '#ffffff',
+                confirmButtonColor: '#2ec4b6'
+            });
         }
     }
+}
 
-    document.getElementById('loginForm').addEventListener('submit', ManageLoginForm);
-    togglePasswordVisibility();
+/**
+ * Initialise le script lorsque le DOM est complètement chargé
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    new Login();
 });
