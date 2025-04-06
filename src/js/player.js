@@ -26,8 +26,6 @@ const elements = {
  */
 async function fetchApi(endpoint, options = {}) {
     const url = `${API_CONFIG.baseUrl}${endpoint}`;
-    console.log('API Call URL:', url);
-
     try {
         const response = await fetch(url, {
             headers: API_CONFIG.headers,
@@ -78,7 +76,7 @@ const showError = (message) => Swal.fire({
     text: message
 });
 
-// Fonctions CRUD
+
 const searchPlayers = async (event) => {
     event.preventDefault();
     const searchTerm = document.getElementById('search-bar').value;
@@ -89,11 +87,15 @@ const searchPlayers = async (event) => {
         displayPlayers(data);
         Swal.close();
     } catch (error) {
-        console.error('Search error:', error); // Ajouter un log d'erreur
+        console.error('Search error:', error);
         showError('Impossible de rechercher les joueurs');
     }
 };
-
+/**
+ * Ajoute un joueur
+ * @param event
+ * @returns {Promise<void>}
+ */
 const addPlayer = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -133,34 +135,57 @@ const addPlayer = async (event) => {
 };
 
 const deletePlayer = async (playerId) => {
-    const result = await Swal.fire({
-        title: 'Êtes-vous sûr ?',
-        text: "Cette action est irréversible !",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Oui, supprimer',
-        cancelButtonText: 'Annuler'
-    });
+    try {
+        const result = await Swal.fire({
+            title: 'Êtes-vous sûr ?',
+            text: "Cette action est irréversible !",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, supprimer',
+            cancelButtonText: 'Annuler'
+        });
 
-    if (result.isConfirmed) {
-        try {
+        if (result.isConfirmed) {
             showLoader();
-            await fetchApi('player', {
+
+            const response = await fetchApi('player', {
                 method: 'DELETE',
                 body: JSON.stringify({ id: playerId })
             });
 
-            showSuccess('Joueur supprimé avec succès');
+            await Swal.fire({
+                title: 'Succès !',
+                text: 'Le joueur a été supprimé avec succès',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+
             document.getElementById('profilePopup').style.display = 'none';
             await fetchAllPlayers();
-        } catch (error) {
-            showError('Erreur lors de la suppression');
+
+            // Notification toast de confirmation
+            Toast.fire({
+                icon: 'success',
+                title: 'Joueur supprimé de la base de données'
+            });
         }
+    } catch (error) {
+        console.error('Erreur de suppression:', error);
+        Swal.fire({
+            title: 'Erreur',
+            text: 'Impossible de supprimer le joueur: ' + error.message,
+            icon: 'error'
+        });
     }
 };
-
+/**
+ * Met à jour un joueur
+ * @param event
+ * @returns {Promise<void>}
+ */
 const updatePlayer = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -206,11 +231,11 @@ const displayPlayers = (players) => {
     }
 
     playerList.innerHTML = players.map(player => `
-        <div class="joueur-card" data-id="${player.Id_Joueur}">
-            <img src="${player.Image ? '../assets/data-player/' + player.Image : '../assets/data-player/default.jpg'}"
-                 alt="Photo de ${player.Prenom} ${player.Nom}">
-            <p>${player.Prenom} ${player.Nom}</p>
-            <p class="nblicense">Numéro de Licence: ${player.Numéro_license}</p>
+           <div class="joueur-card" data-id="${player.Id_Joueur}">
+            <img src="../assets/data-player/${player.Image}" alt="Photo de ${player.Nom}">
+            <p><strong>${player.Nom} ${player.Prenom}</strong></p>
+            <p class="nblicense">${player.Numéro_license}</p>
+            <p>${player.Poste}</p>
         </div>
     `).join('');
 
@@ -230,7 +255,7 @@ const toggleAddPlayerForm = () => toggleForm('.add-player-section');
 const fetchAllPlayers = async () => {
     try {
         showLoader();
-        const { data } = await fetchApi('players'); // Changed from 'players' to 'all'
+        const { data } = await fetchApi('players');
         displayPlayers(data);
         Swal.close();
     } catch (error) {
@@ -242,7 +267,6 @@ const fetchAllPlayers = async () => {
 const openPlayerProfile = async (playerId) => {
     try {
         showLoader();
-        console.log('Fetching player profile for ID:', playerId);
 
         const [playerResponse, noteResponse] = await Promise.all([
             fetchApi(`player?id=${playerId}`),
@@ -382,6 +406,9 @@ const openPlayerProfile = async (playerId) => {
         Swal.close();
     }
 };
+/**
+ *
+ */
 document.addEventListener('DOMContentLoaded', async () => {
     const elements = {
         searchForm: document.getElementById('search-form'),
@@ -391,7 +418,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         addPlayerSection: document.querySelector('.add-player-section')
     };
 
-    // Initialize event listeners with null checks
     if (elements.searchForm) {
         elements.searchForm.addEventListener('submit', searchPlayers);
     }
@@ -420,5 +446,3 @@ document.addEventListener('DOMContentLoaded', async () => {
         showError('Erreur lors du chargement initial');
     }
 });
-
-// ... [Suite dans la prochaine partie à cause de la limite de caractères]

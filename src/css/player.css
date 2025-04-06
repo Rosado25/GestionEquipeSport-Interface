@@ -204,49 +204,106 @@ header {
 #btn-add-player {
     margin-top: 20px;
 }
+.joueur-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 20px;
+}
 
 .joueur-card {
-    background-color: #333;
+    background: linear-gradient(145deg, #2a2a3f, #1e1e2f);
+    border: 1px solid rgba(255, 204, 0, 0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    border-radius: 15px;
-    padding: 20px;
-    width: 240px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    justify-content: space-between;
+    border-radius: 20px;
+    padding: 25px;
+    min-height: 320px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
 }
 
+.joueur-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(142, 68, 173, 0.2));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
 
 .joueur-card:hover {
-    transform: translateY(-12px) scale(1.05);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-    background: linear-gradient(135deg, #3498db, #8e44ad);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.joueur-card:hover::before {
+    opacity: 1;
 }
 
 .joueur-card img {
-    width: 160px;
-    height: auto;
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
     border-radius: 50%;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     border: 4px solid #ffcc00;
-    transition: border-color 0.3s ease;
+    box-shadow: 0 8px 16px rgba(255, 204, 0, 0.2);
+    transition: all 0.4s ease;
 }
 
 .joueur-card:hover img {
+    transform: scale(1.05);
     border-color: #fff;
+    box-shadow: 0 12px 24px rgba(255, 255, 255, 0.3);
 }
 
 .joueur-card p {
-    font-size: 16px;
-    margin: 5px 0;
+    font-size: 18px;
+    margin: 8px 0;
+    font-weight: 500;
+    text-align: center;
+    transition: color 0.3s ease;
+}
+
+.joueur-card p:first-of-type {
+    font-size: 22px;
+    font-weight: 600;
+    color: #ffcc00;
 }
 
 .nblicense {
-    color: yellow;
+    color: #ffcc00;
+    font-size: 16px;
     font-weight: bold;
+    background: rgba(255, 204, 0, 0.1);
+    padding: 5px 12px;
+    border-radius: 15px;
+    margin: 10px 0;
+}
+
+.joueur-card:hover .nblicense {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .joueur-cards {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 10px;
+    }
+
+    .joueur-card {
+        min-height: 300px;
+        padding: 20px;
+    }
 }
 
 /* Animation joueur card */
