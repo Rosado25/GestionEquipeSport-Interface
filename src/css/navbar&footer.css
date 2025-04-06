@@ -1,7 +1,8 @@
+/* Font imports */
 @import url('https://fonts.googleapis.com/css2?family=Abel&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
-
 @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
 
+/* Global reset */
 * {
     margin: 0;
     padding: 0;
@@ -13,9 +14,9 @@ nav {
     position: sticky;
     top: 0;
     width: 100%;
-    background: rgba(0, 0, 0, 0.9);
     height: 9vh;
     padding: 10px 40px;
+    background: rgba(0, 0, 0, 0.9);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -24,6 +25,7 @@ nav {
     border-radius: 12px;
 }
 
+/* Navigation list */
 #ulnav {
     display: flex;
     list-style: none;
@@ -33,6 +35,7 @@ nav {
     border-radius: 15px;
 }
 
+/* Logo */
 nav img {
     height: 80px;
     width: auto;
@@ -40,6 +43,7 @@ nav img {
     transition: transform 0.3s ease-in-out;
 }
 
+/* Navigation links */
 .nav-link {
     font-size: 19px;
     font-weight: 600;
@@ -57,6 +61,7 @@ nav img {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
+/* Profile icon */
 .profile-icon {
     display: flex;
     align-items: center;
@@ -71,7 +76,7 @@ nav img {
     transition: color 0.3s, transform 0.3s;
 }
 
-/* Burger Menu pour la navbar  */
+/* Burger menu */
 .menu-btn {
     display: none;
 }
@@ -109,20 +114,21 @@ nav img {
     top: 8px;
 }
 
-.menu-btn:checked+.menu-icon .navicon {
+.menu-btn:checked + .menu-icon .navicon {
     background: transparent;
 }
 
-.menu-btn:checked+.menu-icon .navicon::before {
+.menu-btn:checked + .menu-icon .navicon::before {
     transform: rotate(45deg);
     top: 0;
 }
 
-.menu-btn:checked+.menu-icon .navicon::after {
+.menu-btn:checked + .menu-icon .navicon::after {
     transform: rotate(-45deg);
     top: 0;
 }
 
+/* Button styles */
 .dec {
     padding: 0;
     background: none;
@@ -132,6 +138,7 @@ nav img {
     outline: none;
     position: absolute;
 }
+
 .button-style {
     padding: 10px 20px;
     background-color: #ffcc00;
@@ -147,7 +154,25 @@ nav img {
     background-color: #e6b800;
 }
 
-/* Tablette  */
+/* Footer */
+.footer {
+    background-color: #1C1C1C;
+    color: #ffffff;
+    padding: 20px;
+    text-align: center;
+    font-size: 15px;
+    position: static;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 2px solid #ffcc00;
+}
+
+/* Tablet styles */
 @media screen and (min-width: 960px) and (max-width: 1153px) {
     #ulnav {
         gap: 10px;
@@ -173,8 +198,7 @@ nav img {
     }
 }
 
-
-/* Telephone  */
+/* Mobile styles */
 @media screen and (max-width: 960px) {
     #ulnav {
         display: none;
@@ -207,25 +231,4 @@ nav img {
     .profile-icon {
         display: none;
     }
-
 }
-/* Footer */
-.footer {
-    background-color: #1C1C1C;
-    color: #ffffff;
-    padding: 10px 20px;
-    text-align: center;
-    font-size: 15px;
-    position: static;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-top: 2px solid #ffcc00;
-    padding: 20px;
-
-}
-

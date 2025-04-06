@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Gestion du menu burger
     const nav = document.getElementById('ulnav');
     const menuBtn = document.getElementById('menu-btn');
     if (menuBtn && nav) {
@@ -6,31 +7,57 @@ document.addEventListener("DOMContentLoaded", () => {
             nav.classList.toggle('show');
         });
     }
+
+    /**
+     * Fonction pour gérer la déconnexion
+     * @type {HTMLElement}
+     */
     const logoutLink = document.getElementById("logout-link");
     if (logoutLink) {
         logoutLink.addEventListener("click", async (event) => {
             event.preventDefault();
 
             try {
-                const response = await fetch("/R4.01/gestionequipesport-auth-api/src/routes/auth.php/api/logout", {
+                const response = await fetch("/R4.01/gestionequipesport-auth-api/api/logout", {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem('token')}`
                     }
                 });
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                console.log(response.status)
-                const responseData = await response.json();
-                if (responseData.status === 200) {
-                    window.location.href = "http://localhost/R4.01/gestionequipesport-interface/src/views/login.php";
+
+                const data = await response.json();
+
+                if (data.status === 200) {
+                    // Suppression du token
+                    localStorage.removeItem('token');
+
+                    // Redirection vers la page de connexion
+                    window.location.href = '/R4.01/gestionequipesport-interface/src/views/login.php';
                 } else {
-                    console.error("Logout impossbile:", responseData.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: 'Erreur lors de la déconnexion',
+                        background: '#1e1e2f',
+                        color: '#ffffff',
+                        confirmButtonColor: '#2ec4b6'
+                    });
                 }
             } catch (error) {
-                console.error("Erreur:", error);
+                console.error("Erreur lors de la déconnexion:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: 'Erreur de connexion au serveur',
+                    background: '#1e1e2f',
+                    color: '#ffffff',
+                    confirmButtonColor: '#2ec4b6'
+                });
             }
         });
     }
