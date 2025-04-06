@@ -54,17 +54,11 @@ document.addEventListener("DOMContentLoaded", async () => {
      */
     async function addMatch(Data) {
         try {
-            console.log(Data);
-            console.log("Ajout d'un match...");
             const response = await fetch(`${API_CONFIG.baseUrl}match`, {
                 method: "POST",
                 headers: API_CONFIG.headers,
                 body: JSON.stringify(Data)
             });
-            console.log(JSON.stringify(Data));
-            const text = await response.text();  // Récupère la réponse brute
-            console.log("Réponse brute de l'API:", text);  // Affiche la réponse dans la console
-
             return response;
         } catch (error) {
             console.error("Erreur lors de l'ajout du match:", error);
@@ -96,19 +90,15 @@ document.addEventListener("DOMContentLoaded", async () => {
      * Delete un match
      */
     async function deleteMatch(matchId) {
-        console.log(`Suppression du match ID: ${matchId}`);
         try {
             const response = await fetch(`${API_CONFIG.baseUrl}match`, {
                 method: "DELETE",
                 headers: API_CONFIG.headers,
                 body: JSON.stringify({ Id_Match_Foot: matchId })
             });
-            const text = await response.text();  // Récupère la réponse brute
-            console.log("Réponse brute de l'API:", text);  // Affiche la réponse dans la console
 
             const result = JSON.parse(text);
-            console.log(result);
-            console.log(result.response.status);
+
             if (result.response.status == 200) {
                 alert("Match supprimé avec succès !");
                 getAllMatch(); // Recharge la liste après suppression
@@ -128,7 +118,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             event.stopPropagation(); // Empêche le déclenchement du clic sur la ligne
             event.preventDefault(); // Empêche les comportements par défaut (optionnel)
 
-            console.log("Bouton delete cliqué");
             const matchId = deleteBtn.dataset.matchId;
 
             if (!matchId) {
@@ -147,7 +136,6 @@ document.addEventListener("DOMContentLoaded", async () => {
      * Edit un match
      */
     async function updateMatch(matchData) {
-        console.log(`Mise à jour du match ID: ${matchData.Id_Match_Foot}`);
         try {
 
             const response = await fetch(`${API_CONFIG.baseUrl}match`, {
@@ -155,11 +143,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 headers: API_CONFIG.headers,
                 body: JSON.stringify(matchData)
             });
-            console.log(JSON.stringify(matchData));
-            const text = await response.text();  // Récupère la réponse brute
-            console.log("Réponse brute de l'API:", text);  // Affiche la réponse dans la console
-            console.log(matchData)
-            console.log(response);
+
             return response;
         } catch (error) {
             console.error("Erreur lors de la mise à jour du match:", error);
@@ -250,7 +234,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const closeBtn = document.querySelector(".close-btn");
 
     window.openEditPopup = function (matchId) {
-        console.log("Match sélectionné:", matchId);
         const match = ListeMatch.find(m => m.Id_Match_Foot === matchId);
         if (!match) {
             console.error("Match non trouvé !");
