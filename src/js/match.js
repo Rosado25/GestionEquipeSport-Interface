@@ -36,6 +36,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
     const tableBody = document.querySelector("tbody");
+    // Après const tableBody = document.querySelector("tbody");
+    tableBody.addEventListener("click", (event) => {
+        const row = event.target.closest(".match-row");
+        const isActionButton = event.target.closest(".actionsbtn, .edit-btn, .delete-btn");
+
+        if (row && !isActionButton) {
+            const matchId = row.dataset.matchId;
+            window.location.href = `Match_Sheet.php?id=${matchId}`;
+        }
+    });
     let ListeMatch = [];
 
     /**
@@ -95,11 +105,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("Réponse brute de l'API:", text);  // Affiche la réponse dans la console
 
             const result = JSON.parse(text);
-            console.log(result)
-            if (result.status == 200) {
+            console.log(result);
+            console.log(result.response.status);
+            if (result.response.status == 200) {
                 alert("Match supprimé avec succès !");
                 getAllMatch(); // Recharge la liste après suppression
             } else {
+                alert("Échec de la suppression!");
                 console.error("Échec de la suppression :", result);
             }
         } catch (error) {
@@ -108,8 +120,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     document.addEventListener("click", async (event) => {
-        if (event.target.closest(".delete-btn")) {
-            const matchId = event.target.closest(".delete-btn").dataset.matchId;
+        const deleteBtn = event.target.closest(".delete-btn");
+        if (deleteBtn) {
+            event.stopPropagation(); // Empêche le déclenchement du clic sur la ligne
+            event.preventDefault(); // Empêche les comportements par défaut (optionnel)
+
+            console.log("Bouton delete cliqué");
+            const matchId = deleteBtn.dataset.matchId;
+
             if (!matchId) {
                 console.error("ID de match non trouvé !");
                 return;
@@ -187,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             tableBody.innerHTML = ListeMatch.map(match => `
-            <tr class="match-row" onclick="window.location.href='Match_Sheet.php?id=${match.Id_Match_Foot}'" style="cursor: pointer;">
+           <tr class="match-row" data-match-id="${match.Id_Match_Foot}" style="cursor: pointer;">
                 <td>${match.date_heure && match.date_heure !== "0000-00-00 00:00:00"
                     ? new Date(match.date_heure).toLocaleString("fr-FR")
                     : "Non défini"}</td>
@@ -204,7 +222,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         <button class="btn yellow-btn edit-btn" onclick="event.stopPropagation(); openEditPopup(${match.Id_Match_Foot})">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn red-btn delete-btn" data-match-id="${match.Id_Match_Foot}" onclick="event.stopPropagation();">
+                        <button class="btn red-btn delete-btn" data-match-id="${match.Id_Match_Foot}">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
