@@ -238,16 +238,16 @@ class Dashboard {
         try {
             const statsMap = {
                 points: { endpoint: 'points', label: 'Points' },
-                victories: { endpoint: 'win-rate', label: 'Pourcentage ', format: val => `${(val || 0).toFixed(1)}%` },
+                victories: { endpoint: 'win-rate', label: 'Pourcentage ', format: val => `${parseFloat(val || 0).toFixed(1)}%` },
                 nbMatchs: { endpoint: 'matches-played', label: 'Matchs joués' },
                 nbGagnes: { endpoint: 'count-matches-won', label: 'Matchs gagnés' },
                 butsM: { endpoint: 'goals-scored', label: 'Buts marqués' },
                 butsS: { endpoint: 'goals-conceded', label: 'Buts subis' },
-                butsPm: { endpoint: 'goals-per-game', label: 'Buts par match', format: val => (val || 0).toFixed(1) },
+                butsPm: { endpoint: 'goals-per-game', label: 'Buts par match', format: val => parseFloat(val || 0).toFixed(1) },
                 cs: { endpoint: 'clean-sheets', label: 'Clean Sheets' },
                 db: { endpoint: 'goals-diff', label: 'Différence de buts' },
-                performanceEquipe: { endpoint: 'team-performance-note', label: 'Performance: ', format: val => `${(val || 0).toFixed(1)}/10` },
-                moyenneNotes: { endpoint: 'team-average-note', label: 'Moyenne des notes', format: val => `${(val || 0).toFixed(1)}/10` }
+                performanceEquipe: { endpoint: 'team-performance-note', label: 'Performance: ', format: val => `${parseFloat(val || 0).toFixed(1)}/10` },
+                moyenneNotes: { endpoint: 'team-average-note', label: 'Moyenne des notes', format: val => `${parseFloat(val || 0).toFixed(1)}/10` }
             };
 
             await Promise.all(
