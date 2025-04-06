@@ -169,8 +169,6 @@ const saveTeam = async () => {
         }
     });
 
-    console.log('Saving team with the following data:', { matchId, players, positions, notes });
-
     try {
         const response = await fetch(`${API_CONFIG.baseUrl}register-team`, {
             method: 'POST',
@@ -217,8 +215,8 @@ const refreshTeamTable = async (players, positions) => {
                 <td>${player}</td>
                 <td>${positions[index]}</td>
                 <td><input type="number" min="0" max="10" name="noteslist[]" data-player="${player}" value="${note}" placeholder="Note /10" /></td>
-                <td>${playerData.Poids || 'N/A'}</td>
-                <td>${playerData.Taille || 'N/A'}</td>
+                <td>${playerData.Poids || 'N/A'} kg</td>
+                <td>${playerData.Taille  || 'N/A'} cm</td>
             </tr>
         `;
     }).join('');
@@ -456,7 +454,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const matchId = urlParams.get('id');
 
         if (!matchId) throw new Error('ID du match non trouvé');
-        console.log("Initialisation de la feuille de match");
+
 
         document.querySelector('input[name="idMatch"]').value = matchId;
 
