@@ -1,5 +1,5 @@
 const API_CONFIG = {
-    baseUrl: 'https://equipesportapi.alwaysdata.net/api/',
+    baseUrl: '/R4.01/gestionequipesport-api/api/',
     imagesPath: '../assets/data-player',
     headers: {
         'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ async function fetchApi(endpoint, options = {}) {
 
         if (!response.ok) {
             if (response.status === 401) {
-                window.location.href = '/src/views/login.php';
+                window.location.href = '/R4.01/gestionequipesport-interface/src/views/login.php';
                 return;
             }
             throw new Error(`Erreur HTTP! statut: ${response.status}`);
@@ -77,7 +77,7 @@ const showError = (message) => Swal.fire({
 });
 
 /**
- *  permet de rechercher un joueur
+ *  permet de rechercher un joueur 
  * @param event
  * @returns {Promise<void>}
  */
@@ -263,7 +263,7 @@ const toggleAddPlayerForm = () => toggleForm('.add-player-section');
 const fetchAllPlayers = async () => {
     try {
         showLoader();
-        const { data } = await fetchApi('player/players');
+        const { data } = await fetchApi('players');
         displayPlayers(data);
         Swal.close();
     } catch (error) {
@@ -277,9 +277,10 @@ const openPlayerProfile = async (playerId) => {
         showLoader();
 
         const [playerResponse, noteResponse] = await Promise.all([
-            fetchApi(`player/?id=${playerId}`), // Added trailing slash
-            fetchApi(`player/average-note?id=${playerId}`) // Added trailing slash
+            fetchApi(`player?id=${playerId}`),
+            fetchApi(`player/average-note?id=${playerId}`)
         ]);
+
         const playerData = playerResponse.data;
         let averageNote = noteResponse.data ? parseFloat(noteResponse.data.Moyenne_Note) : null;
         if (averageNote === null || isNaN(averageNote)) {
