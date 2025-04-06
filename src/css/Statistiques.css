@@ -1,157 +1,174 @@
-/* Statistiques.css */
-
-/* Import des polices */
-@import url('https://fonts.googleapis.com/css2?family=Abel&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+:root {
+    --background-dark: #0a0b1e;
+    --card-bg: #1a1b2e;
+    --card-hover: #252640;
+    --text-primary: #ffffff;
+    --text-secondary: #b4b6c5;
+    --accent: #ffcc00;
+    --accent-dark: #d4af37;
+    --success: #2ec4b6;
+    --warning: #ff9f1c;
+    --danger: #e71d36;
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --radius: 16px;
 }
 
 body {
-    font-family: 'Nunito', sans-serif;
-    background: #121212;
-    color: #fff;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, var(--background-dark) 0%, #141428 100%);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 20px;
     line-height: 1.6;
 }
 
-header {
-    text-align: center;
-    padding: 20px;
-    background-color: #1e1e2f;
-    border-bottom: 2px solid #ffcc00;
-}
-
-#statistiques-main {
-    display: flex;
-    flex-direction: column;
-    max-width: 1280px;
-    margin: 32px auto;
-    padding: 32px;
-    gap: 32px;
-}
-
 .statistiques-container {
-    background: #1e1e2f;
-    padding: 32px;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.statistiques-title,
-.statistiques-subtitle {
-    font-family: 'Ubuntu', sans-serif;
-    color: #ffcc00;
-    margin-bottom: 16px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
 }
 
 .statistiques-title {
+    font-size: 2.5rem;
+    background: linear-gradient(45deg, var(--accent), var(--accent-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 3rem;
     text-align: center;
-    font-size: 36px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .statistiques-subtitle {
-    font-size: 28px;
+    font-size: 1.75rem;
+    color: var(--text-primary);
+    margin-bottom: 2rem;
+    border-left: 4px solid var(--accent);
+    padding-left: 1rem;
 }
 
 .cards {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 32px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
 }
 
 .statistiques-card {
+    background: linear-gradient(145deg, var(--card-bg), var(--card-hover));
+    border-radius: var(--radius);
+    padding: 2rem;
     display: flex;
     align-items: center;
-    gap: 16px;
-    background: #1e1e2f;
-    padding: 24px;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    transition: transform 0.3s ease;
-    margin-bottom: 20px;
+    gap: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .statistiques-card:hover {
-    transform: translateY(-5px) scale(1.05);
+    transform: translateY(-5px) scale(1.02);
+    border-color: var(--accent);
+    box-shadow: 0 12px 40px rgba(255, 204, 0, 0.1);
 }
 
 .statistiques-card i {
-    font-size: 48px;
-    color: #ffcc00;
+    font-size: 2.5rem;
+    background: linear-gradient(45deg, var(--accent), var(--accent-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .statistiques-card h3 {
-    font-family: 'Ubuntu', sans-serif;
-    font-size: 24px;
+    font-size: 1.1rem;
     margin: 0;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
 }
 
 .statistiques-card p {
-    margin: 0;
-    color: #ccc;
+    font-size: 1.75rem;
+    margin: 0.5rem 0 0;
+    font-weight: 700;
+    background: linear-gradient(45deg, var(--text-primary), #e0e0e0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .table-container {
-    max-height: 400px;
-    overflow-y: auto;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(145deg, var(--card-bg), var(--card-hover));
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .statistiques-table {
     width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 32px;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
-.statistiques-table thead {
-    background: #444;
-}
-
-.statistiques-table thead th {
-    color: #ffcc00;
-    padding: 16px;
+.statistiques-table th {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--accent);
+    font-weight: 600;
     text-align: left;
+    padding: 1.25rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    border-bottom: 2px solid rgba(255, 204, 0, 0.2);
+}
+
+.statistiques-table td {
+    padding: 1rem;
+    font-size: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .statistiques-table tbody tr {
-    background: #333;
-    transition: background 0.3s ease;
+    transition: var(--transition);
 }
 
 .statistiques-table tbody tr:hover {
-    background: #444;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
 }
 
-.statistiques-table tbody td {
-    padding: 16px;
-    color: #ffffff;
-}
-
-/* Responsive */
 @media (max-width: 768px) {
-    #statistiques-main {
-        padding: 16px;
+    body {
+        padding: 10px;
+    }
+
+    .statistiques-container {
+        padding: 1rem;
     }
 
     .statistiques-title {
-        font-size: 28px;
-    }
-
-    .statistiques-subtitle {
-        font-size: 24px;
-    }
-
-    .statistiques-item,
-    .statistiques-table thead th,
-    .statistiques-table tbody td {
-        padding: 12px;
+        font-size: 2rem;
+        margin-bottom: 2rem;
     }
 
     .cards {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .statistiques-card {
+        padding: 1.5rem;
+    }
+
+    .table-container {
+        padding: 1rem;
+    }
+
+    .statistiques-table th,
+    .statistiques-table td {
+        padding: 0.75rem;
+        font-size: 0.9rem;
     }
 }
