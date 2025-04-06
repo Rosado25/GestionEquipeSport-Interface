@@ -35,8 +35,8 @@ class Statistics {
     }
 
     /**
-     * Effectue un appel API générique
-     * @param {string} endpoint - Point de terminaison de l'API
+     * Effectue un appel API
+     * @param {string} endpoint
      * @returns {Promise<Object>} Données de la réponse
      */
     async fetchApi(endpoint) {
