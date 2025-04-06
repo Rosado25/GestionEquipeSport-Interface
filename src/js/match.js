@@ -35,8 +35,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             throw error;
         }
     }
+
     const tableBody = document.querySelector("tbody");
-    // Après const tableBody = document.querySelector("tbody");
+    // Event listener pour le match sheet;
     tableBody.addEventListener("click", (event) => {
         const row = event.target.closest(".match-row");
         const isActionButton = event.target.closest(".actionsbtn, .edit-btn, .delete-btn");
@@ -70,6 +71,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    // Event listener pour add un match;
     const form = document.querySelector(".form-group");
     form.addEventListener("submit", async (event) => {
         event.preventDefault(); // Empêche la soumission classique
@@ -119,6 +121,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    // Event listener pour suprimmer un match;
     document.addEventListener("click", async (event) => {
         const deleteBtn = event.target.closest(".delete-btn");
         if (deleteBtn) {
@@ -163,6 +166,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    // Event listener pour editer un match;
     const editMatch = document.querySelector(".edit-match");
     editMatch.addEventListener("click", async (event) => {
         event.preventDefault();
@@ -350,6 +354,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    // Appel aux fonctions
     await getAllMatch();
     await fetchMatchesPlayed();
     await fetchVictoires();
